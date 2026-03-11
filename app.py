@@ -6,7 +6,7 @@ st.set_page_config(page_title="WAIS-IV Chile: Sistema Profesional", layout="wide
 
 def check_password():
     def password_entered():
-        if st.session_state["password"] == "WAIS2024":
+        if st.session_state["password"] == "MARITA2026":
             st.session_state["password_correct"] = True
             del st.session_state["password"]
         else:
