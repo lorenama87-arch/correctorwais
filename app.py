@@ -4,7 +4,7 @@ import pandas as pd
 # 1. SEGURIDAD
 def check_password():
     def password_entered():
-        if st.session_state["password"] == "WAIS2024":
+        if st.session_state["password"] == "MARITA2026":
             st.session_state["password_correct"] = True
             del st.session_state["password"]
         else:
