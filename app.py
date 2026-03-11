@@ -270,7 +270,7 @@ if check_password():
         m1, m2, m3, m4, m5, m6 = st.columns(6)
         m1.metric("ICV", icv, desc_clinico(icv))
         m2.metric("IRP", irp, desc_clinico(irp))
-        m3.metric("IMT", imt, desc(imt))
+        m3.metric("IMT", imt, desc_clinico(imt))
         m4.metric("IVP", ivp, desc_clinico(ivp))
         m5.metric("ICG", icg, desc_clinico(icg))
         m6.metric("CIT", cit, desc_clinico(cit), delta_color="off")
