@@ -238,41 +238,41 @@ if check_password():
         p_bs = st.number_input("Símbolos (BS)", 0, 60)
         p_cn = st.number_input("Claves (CN)", 0, 135)
 
-    if st.button("CALCULAR PERFIL ESPAÑA"):
-        e_s, e_v, e_i = get_pe("S", p_s, edad_sel), get_pe("V", p_v, edad_sel), get_pe("I", p_i, edad_sel)
-        e_c, e_m, e_pv = get_pe("C", p_c, edad_sel), get_pe("M", p_m, edad_sel), get_pe("PV", p_pv, edad_sel)
-        e_d, e_a = get_pe("D", p_d, edad_sel), get_pe("A", p_a, edad_sel)
-        e_bs, e_cn = get_pe("BS", p_bs, edad_sel), get_pe("CN", p_cn, edad_sel)
+    # --- CÁLCULO DIRECTO REACTIVO ---
+    e_s, e_v, e_i = get_pe("S", p_s, edad_sel), get_pe("V", p_v, edad_sel), get_pe("I", p_i, edad_sel)
+    e_c, e_m, e_pv = get_pe("C", p_c, edad_sel), get_pe("M", p_m, edad_sel), get_pe("PV", p_pv, edad_sel)
+    e_d, e_a = get_pe("D", p_d, edad_sel), get_pe("A", p_a, edad_sel)
+    e_bs, e_cn = get_pe("BS", p_bs, edad_sel), get_pe("CN", p_cn, edad_sel)
 
-        icv = approx_indice("ICV", e_s + e_v + e_i)
-        irp = approx_indice("IRP", e_c + e_m + e_pv)
-        imt = approx_indice("IMT", e_d + e_a)
-        ivp = approx_indice("IVP", e_bs + e_cn)
-        icg = approx_indice("ICG", e_s + e_v + e_i + e_c + e_m + e_pv)
-        cit = approx_indice("CIT", e_s+e_v+e_i+e_c+e_m+e_pv+e_d+e_a+e_bs+e_cn)
+    icv = approx_indice("ICV", e_s + e_v + e_i)
+    irp = approx_indice("IRP", e_c + e_m + e_pv)
+    imt = approx_indice("IMT", e_d + e_a)
+    ivp = approx_indice("IVP", e_bs + e_cn)
+    icg = approx_indice("ICG", e_s + e_v + e_i + e_c + e_m + e_pv)
+    cit = approx_indice("CIT", e_s+e_v+e_i+e_c+e_m+e_pv+e_d+e_a+e_bs+e_cn)
 
-        st.divider()
-        st.success(f"Resultados TEA | Paciente: {nombre} | Edad: {edad_sel}")
-        m1, m2, m3, m4, m5, m6 = st.columns(6)
-        
-        m1.metric("ICV", icv, desc_clinico(icv))
-        m2.metric("IRP", irp, desc_clinico(irp))
-        m3.metric("IMT", imt, desc_clinico(imt))
-        m4.metric("IVP", ivp, desc_clinico(ivp))
-        m5.metric("ICG", icg, desc_clinico(icg))
-        m6.metric("CIT", cit, desc_clinico(cit), delta_color="off")
+    st.divider()
+    st.success(f"Resultados TEA | Paciente: {nombre} | Edad: {edad_sel}")
+    m1, m2, m3, m4, m5, m6 = st.columns(6)
+    
+    m1.metric("ICV", icv, desc_clinico(icv))
+    m2.metric("IRP", irp, desc_clinico(irp))
+    m3.metric("IMT", imt, desc_clinico(imt))
+    m4.metric("IVP", ivp, desc_clinico(ivp))
+    m5.metric("ICG", icg, desc_clinico(icg))
+    m6.metric("CIT", cit, desc_clinico(cit), delta_color="off")
 
-        dis = max(icv, irp, imt, ivp) - min(icv, irp, imt, ivp)
-        if dis >= 23:
-            st.error(f"⚠️ DISCREPANCIA: Diferencia de {dis} pts entre índices. Use el ICG.")
-        else:
-            st.info("✅ PERFIL ARMÓNICO: El CIT es representativo.")
+    dis = max(icv, irp, imt, ivp) - min(icv, irp, imt, ivp)
+    if dis >= 23:
+        st.error(f"⚠️ DISCREPANCIA: Diferencia de {dis} pts entre índices. Use el ICG.")
+    else:
+        st.info("✅ PERFIL ARMÓNICO: El CIT es representativo.")
 
-        st.subheader("Puntuaciones Escalares (PE)")
-        df = pd.DataFrame({
-            "Prueba": ["S", "V", "I", "C", "M", "PV", "D", "A", "BS", "CN"],
-            "PD": [p_s, p_v, p_i, p_c, p_m, p_pv, p_d, p_a, p_bs, p_cn],
-            "PE": [e_s, e_v, e_i, e_c, e_m, e_pv, e_d, e_a, e_bs, e_cn]
-        })
-        st.table(df.set_index("Prueba").T)
-        st.bar_chart(df.set_index("Prueba")["PE"])
+    st.subheader("Puntuaciones Escalares (PE)")
+    df = pd.DataFrame({
+        "Prueba": ["S", "V", "I", "C", "M", "PV", "D", "A", "BS", "CN"],
+        "PD": [p_s, p_v, p_i, p_c, p_m, p_pv, p_d, p_a, p_bs, p_cn],
+        "PE": [e_s, e_v, e_i, e_c, e_m, e_pv, e_d, e_a, e_bs, e_cn]
+    })
+    st.table(df.set_index("Prueba").T)
+    st.bar_chart(df.set_index("Prueba")["PE"])
