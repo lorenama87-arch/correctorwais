@@ -11,7 +11,7 @@ def check_password():
         return False
     return st.session_state["password_correct"]
 
-# --- MATRIZ DE DATOS: TABLAS A.1 (ESPAÑA - TEA EDICIONES) ---
+# --- MATRIZ DE DATOS: TABLAS A.1 (ESPAÑA - TEA EDICIONES) VERIFICADA ---
 BAREMOS_ESPANA = {
     "16:0-17:11": {
         "C":  [15, 18, 20, 22, 27, 31, 33, 38, 43, 47, 51, 55, 59, 61, 62, 63, 64, 65, 66],
@@ -132,8 +132,8 @@ BAREMOS_ESPANA = {
         "PV": [0, 1, 2, 3, 4, 5, 5, 6, 6, 7, 8, 9, 10, 10, 13, 16, 18, 26, 26],
         "I":  [1, 1, 1, 2, 3, 3, 4, 5, 6, 7, 9, 11, 15, 17, 18, 19, 26, 26, 26],
         "CN": [0, 0, 1, 2, 3, 4, 5, 7, 9, 13, 16, 19, 26, 30, 35, 42, 48, 56, 135]
-   }
-} # <--- ¡PON ESTA LLAVE AQUÍ!
+    }
+}
 
 # --- TABLAS COMPUESTAS (ESPAÑA EXACTAS - Páginas 203-208) ---
 COMP_MAP = {
