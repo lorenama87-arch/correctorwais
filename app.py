@@ -5,11 +5,31 @@ import pandas as pd
 st.set_page_config(page_title="WAIS-IV España: Sistema Clínico", layout="wide")
 
 def check_password():
-    if "password_correct" not in st.session_state:
+    """
+    CORREGIDO: la versión original solo mostraba el campo de contraseña la
+    primera vez que se ejecutaba el script. Si el usuario se equivocaba,
+    'password_correct' quedaba en False dentro de session_state y el bloque
+    que dibuja el st.text_input ya no volvía a ejecutarse nunca más,
+    dejando la app en blanco sin posibilidad de reintentar.
+    """
+    def password_entered():
+        st.session_state["password_correct"] = (
+            st.session_state["password"] == "MARITA2026"
+        )
+
+    if not st.session_state.get("password_correct", False):
         st.title("🧠 WAIS-IV España (TEA): Corrección Exacta")
-        st.text_input("Contraseña", type="password", on_change=lambda: st.session_state.update({"password_correct": st.session_state.password == "MARITA2026"}), key="password")
+        st.text_input(
+            "Contraseña",
+            type="password",
+            on_change=password_entered,
+            key="password"
+        )
+        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+            st.error("Contraseña incorrecta. Inténtalo de nuevo.")
         return False
-    return st.session_state["password_correct"]
+
+    return True
 
 # --- MATRIZ DE DATOS: TABLAS A.1 (ESPAÑA - TEA EDICIONES) VERIFICADA ---
 BAREMOS_ESPANA = {
@@ -78,7 +98,15 @@ BAREMOS_ESPANA = {
         "S":  [7, 10, 11, 12, 13, 15, 16, 18, 19, 21, 23, 24, 25, 27, 28, 29, 30, 31, 36],
         "D":  [9, 12, 14, 15, 17, 18, 20, 22, 24, 26, 28, 29, 31, 33, 35, 37, 40, 42, 48],
         "M":  [3, 4, 6, 8, 10, 11, 12, 14, 16, 18, 19, 20, 21, 22, 23, 24, 25, 25, 26],
-        "V":  [8, 10, 12, 14, 16, 18, 21, 24, 27, 30, 33, 35, 37, 39, 41, 44, 46, 48, 51, 57],
+        # ATENCIÓN: en el original esta lista tenía 20 valores en vez de 19
+        # (uno por cada PE de 1 a 19, como en todas las demás pruebas/franjas).
+        # Esto desplazaba en +1 todos los PE de Vocabulario calculados para
+        # pacientes de 45-54 años, y por tanto también el ICV y el CIT.
+        # He quitado el valor "51" (posible duplicado/error de transcripción),
+        # pero esto es una corrección PROVISIONAL: verifica esta fila contra
+        # la tabla de baremos original (Tabla A.1/A.2, PD→PE por subtest,
+        # páginas previas a la 203) antes de usarla clínicamente.
+        "V":  [8, 10, 12, 14, 16, 18, 21, 24, 27, 30, 33, 35, 37, 39, 41, 44, 46, 48, 57],
         "A":  [4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 22],
         "BS": [4, 8, 10, 14, 17, 19, 21, 24, 27, 30, 32, 36, 38, 42, 44, 48, 52, 56, 60],
         "PV": [2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 16, 17, 19, 20, 22, 23, 25, 26],
@@ -136,27 +164,28 @@ BAREMOS_ESPANA = {
 }
 
 # --- TABLAS COMPUESTAS (ESPAÑA EXACTAS - Páginas 203-208) ---
+# Verificadas manualmente contra las fotos de las Tablas A.3 a A.7: sin errores.
 COMP_MAP = {
     "ICV": {
-        3:50, 4:50, 5:50, 6:50, 7:51, 8:54, 9:56, 10:58, 11:60, 12:63, 13:65, 14:67, 15:69, 16:71, 17:73, 
-        18:75, 19:78, 20:80, 21:82, 22:84, 23:86, 24:88, 25:90, 26:92, 27:94, 28:96, 29:98, 30:100, 31:102, 
-        32:104, 33:106, 34:108, 35:110, 36:112, 37:114, 38:116, 39:118, 40:120, 41:122, 42:124, 43:126, 
+        3:50, 4:50, 5:50, 6:50, 7:51, 8:54, 9:56, 10:58, 11:60, 12:63, 13:65, 14:67, 15:69, 16:71, 17:73,
+        18:75, 19:78, 20:80, 21:82, 22:84, 23:86, 24:88, 25:90, 26:92, 27:94, 28:96, 29:98, 30:100, 31:102,
+        32:104, 33:106, 34:108, 35:110, 36:112, 37:114, 38:116, 39:118, 40:120, 41:122, 42:124, 43:126,
         44:128, 45:130, 46:132, 47:133, 48:135, 49:137, 50:139, 51:141, 52:143, 53:145, 54:147, 55:150, 56:150, 57:150
     },
     "IRP": {
-        3:50, 4:50, 5:50, 6:50, 7:52, 8:54, 9:56, 10:58, 11:60, 12:62, 13:64, 14:66, 15:68, 16:70, 17:73, 
-        18:75, 19:77, 20:79, 21:81, 22:83, 23:85, 24:87, 25:89, 26:91, 27:93, 28:95, 29:97, 30:100, 31:102, 
-        32:104, 33:106, 34:108, 35:110, 36:112, 37:114, 38:116, 39:119, 40:121, 41:123, 42:125, 43:127, 
+        3:50, 4:50, 5:50, 6:50, 7:52, 8:54, 9:56, 10:58, 11:60, 12:62, 13:64, 14:66, 15:68, 16:70, 17:73,
+        18:75, 19:77, 20:79, 21:81, 22:83, 23:85, 24:87, 25:89, 26:91, 27:93, 28:95, 29:97, 30:100, 31:102,
+        32:104, 33:106, 34:108, 35:110, 36:112, 37:114, 38:116, 39:119, 40:121, 41:123, 42:125, 43:127,
         44:129, 45:131, 46:133, 47:136, 48:138, 49:140, 50:142, 51:144, 52:147, 53:149, 54:150, 55:150, 56:150, 57:150
     },
     "IMT": {
-        2:50, 3:50, 4:50, 5:53, 6:56, 7:60, 8:63, 9:66, 10:69, 11:73, 12:76, 13:79, 14:82, 15:85, 16:88, 
-        17:91, 18:94, 19:97, 20:100, 21:103, 22:106, 23:108, 24:111, 25:114, 26:117, 27:119, 28:122, 29:125, 
+        2:50, 3:50, 4:50, 5:53, 6:56, 7:60, 8:63, 9:66, 10:69, 11:73, 12:76, 13:79, 14:82, 15:85, 16:88,
+        17:91, 18:94, 19:97, 20:100, 21:103, 22:106, 23:108, 24:111, 25:114, 26:117, 27:119, 28:122, 29:125,
         30:127, 31:130, 32:132, 33:135, 34:138, 35:140, 36:143, 37:147, 38:150
     },
     "IVP": {
-        2:50, 3:52, 4:56, 5:59, 6:62, 7:64, 8:67, 9:70, 10:73, 11:75, 12:78, 13:81, 14:83, 15:86, 16:89, 
-        17:92, 18:94, 19:97, 20:100, 21:103, 22:105, 23:108, 24:111, 25:114, 26:117, 27:119, 28:122, 29:125, 
+        2:50, 3:52, 4:56, 5:59, 6:62, 7:64, 8:67, 9:70, 10:73, 11:75, 12:78, 13:81, 14:83, 15:86, 16:89,
+        17:92, 18:94, 19:97, 20:100, 21:103, 22:105, 23:108, 24:111, 25:114, 26:117, 27:119, 28:122, 29:125,
         30:128, 31:131, 32:134, 33:137, 34:139, 35:143, 36:146, 37:150, 38:150
     },
     "CIT": {
@@ -182,18 +211,18 @@ COMP_MAP = {
 }
 
 # --- MOTOR LÓGICO ---
-def get_pe(sub, pd, edad):
-    if edad not in BAREMOS_ESPANA: return 10 
+def get_pe(sub, pd_score, edad):
+    if edad not in BAREMOS_ESPANA: return 10
     limites = BAREMOS_ESPANA[edad][sub]
     for i, limite in enumerate(limites):
-        if pd <= limite:
+        if pd_score <= limite:
             return i + 1
     return 19
 
 def approx_indice(tipo, suma):
     if tipo in COMP_MAP and suma in COMP_MAP[tipo]:
         return COMP_MAP[tipo][suma]
-    
+
     # El ICG se mantiene con su fórmula base al no ser índice diagnóstico primario
     if tipo == "ICG": return int(42.0 + (1.20 * suma))
     return 100
@@ -209,13 +238,13 @@ def desc_clinico(val):
 
 if check_password():
     st.title("📊 WAIS-IV España (TEA): Software Clínico")
-    
+
     with st.sidebar:
         st.header("Identificación")
         nombre = st.text_input("Paciente", value="Paciente Español")
         lista_edades = list(BAREMOS_ESPANA.keys())
         edad_sel = st.selectbox("Franja Etaria Normativa", lista_edades)
-        st.success("¡Sistema 100% calibrado y auditado con tablas TEA!")
+        st.success("¡Sistema calibrado con tablas TEA (revisa la nota sobre la franja 45-54 en 'V')!")
 
     st.subheader("1. Puntuaciones Directas (PD)")
     c1, c2, c3, c4 = st.columns(4)
@@ -254,7 +283,7 @@ if check_password():
     st.divider()
     st.success(f"Resultados TEA | Paciente: {nombre} | Edad: {edad_sel}")
     m1, m2, m3, m4, m5, m6 = st.columns(6)
-    
+
     m1.metric("ICV", icv, desc_clinico(icv))
     m2.metric("IRP", irp, desc_clinico(irp))
     m3.metric("IMT", imt, desc_clinico(imt))
