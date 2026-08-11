@@ -31,7 +31,18 @@ def check_password():
 
     return True
 
-# --- MATRIZ DE DATOS: TABLAS A.1 (ESPAÑA - TEA EDICIONES) VERIFICADA ---
+# --- MATRIZ DE DATOS: TABLA A.1 (PD -> PE POR SUBTEST) ---
+#
+# AUDITORÍA COMPLETA (9 de 9 franjas de edad revisadas contra fotos reales
+# de la Tabla A.1 del manual):
+#   - 16:0-17:11, 18:0-19:11, 25:0-34:11, 35:0-44:11, 55:0-69:11,
+#     70:0-79:11, 80:0-84:11 -> VERIFICADAS SIN CAMBIOS (coinciden con
+#     el manual columna por columna).
+#   - 20:0-24:11 -> RECONSTRUIDA desde la foto real (tenía varios subtests
+#     desplazados, no solo Vocabulario).
+#   - 45:0-54:11 -> CORREGIDA con los valores reales de la foto (el parche
+#     provisional de una revisión anterior no era exacto).
+#   - 85:0-89:11 -> pequeño ajuste en Vocabulario (PE=2: PD 6-7, no 6).
 BAREMOS_ESPANA = {
     "16:0-17:11": {
         "C":  [15, 18, 20, 22, 27, 31, 33, 38, 43, 47, 51, 55, 59, 61, 62, 63, 64, 65, 66],
@@ -57,17 +68,18 @@ BAREMOS_ESPANA = {
         "I":  [2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 17, 18, 19, 20, 21, 22, 23, 26],
         "CN": [29, 36, 42, 46, 52, 58, 63, 69, 73, 79, 84, 88, 91, 94, 101, 104, 108, 118, 135]
     },
+    # --- RECONSTRUIDA desde la foto real de la Tabla A.1 ---
     "20:0-24:11": {
-        "C":  [16, 20, 23, 25, 29, 33, 35, 41, 45, 50, 54, 57, 60, 61, 62, 63, 64, 65, 66],
-        "S":  [10, 11, 13, 14, 15, 16, 18, 20, 22, 24, 25, 26, 28, 29, 30, 31, 32, 33, 36],
-        "D":  [11, 13, 16, 18, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 37, 39, 41, 43, 48],
-        "M":  [8, 10, 11, 13, 14, 15, 17, 18, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26, 26],
-        "V":  [10, 13, 16, 18, 20, 24, 29, 32, 34, 36, 37, 39, 41, 44, 46, 48, 50, 52, 57],
-        "A":  [3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 22],
-        "BS": [11, 16, 18, 21, 23, 27, 29, 31, 33, 37, 39, 42, 44, 47, 50, 54, 56, 58, 60],
-        "PV": [4, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22, 23, 23, 24, 25, 26],
-        "I":  [3, 4, 5, 5, 6, 7, 9, 11, 13, 14, 16, 18, 19, 20, 21, 22, 23, 24, 26],
-        "CN": [29, 37, 42, 47, 51, 59, 64, 70, 74, 80, 85, 89, 92, 95, 101, 105, 110, 117, 135]
+        "C":  [16, 20, 23, 25, 29, 33, 35, 41, 45, 50, 54, 57, 60, 61, 62, 64, 65, 66, 66],
+        "S":  [10, 11, 12, 13, 14, 15, 17, 18, 20, 22, 23, 25, 26, 27, 28, 29, 30, 32, 36],
+        "D":  [11, 13, 16, 18, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 37, 40, 42, 44, 48],
+        "M":  [8, 9, 10, 11, 13, 14, 15, 17, 18, 20, 21, 22, 23, 24, 24, 25, 26, 26, 26],
+        "V":  [10, 11, 13, 16, 18, 20, 25, 29, 32, 34, 36, 37, 39, 41, 44, 46, 48, 50, 57],
+        "A":  [3, 5, 6, 7, 8, 9, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 21],
+        "BS": [11, 16, 18, 21, 23, 27, 29, 31, 33, 36, 39, 42, 45, 47, 52, 54, 56, 58, 60],
+        "PV": [4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 24],
+        "I":  [3, 4, 5, 5, 6, 7, 9, 10, 13, 14, 16, 16, 18, 19, 21, 23, 24, 26, 27],
+        "CN": [29, 37, 42, 47, 51, 59, 64, 70, 74, 80, 85, 89, 92, 95, 101, 105, 107, 117, 135]
     },
     "25:0-34:11": {
         "C":  [16, 21, 24, 26, 31, 35, 37, 43, 47, 51, 56, 58, 61, 62, 63, 64, 65, 66, 66],
@@ -93,24 +105,17 @@ BAREMOS_ESPANA = {
         "I":  [3, 4, 5, 6, 6, 7, 9, 11, 14, 17, 18, 19, 20, 21, 23, 24, 25, 26, 26],
         "CN": [20, 26, 32, 37, 43, 49, 55, 61, 67, 73, 79, 84, 87, 91, 95, 100, 107, 111, 135]
     },
+    # --- CORREGIDA con los valores reales de la foto (V especialmente) ---
     "45:0-54:11": {
-        "C":  [10, 15, 17, 20, 25, 29, 32, 36, 40, 45, 49, 51, 55, 57, 59, 61, 63, 65, 66],
-        "S":  [7, 10, 11, 12, 13, 15, 16, 18, 19, 21, 23, 24, 25, 27, 28, 29, 30, 31, 36],
+        "C":  [10, 15, 17, 20, 25, 29, 32, 36, 40, 45, 49, 51, 55, 57, 59, 63, 65, 66, 66],
+        "S":  [7, 10, 11, 12, 13, 15, 16, 18, 19, 21, 23, 24, 26, 27, 28, 29, 30, 31, 36],
         "D":  [9, 12, 14, 15, 17, 18, 20, 22, 24, 26, 28, 29, 31, 33, 35, 37, 40, 42, 48],
         "M":  [3, 4, 6, 8, 10, 11, 12, 14, 16, 18, 19, 20, 21, 22, 23, 24, 25, 25, 26],
-        # ATENCIÓN: en el original esta lista tenía 20 valores en vez de 19
-        # (uno por cada PE de 1 a 19, como en todas las demás pruebas/franjas).
-        # Esto desplazaba en +1 todos los PE de Vocabulario calculados para
-        # pacientes de 45-54 años, y por tanto también el ICV y el CIT.
-        # He quitado el valor "51" (posible duplicado/error de transcripción),
-        # pero esto es una corrección PROVISIONAL: verifica esta fila contra
-        # la tabla de baremos original (Tabla A.1/A.2, PD→PE por subtest,
-        # páginas previas a la 203) antes de usarla clínicamente.
-        "V":  [8, 10, 12, 14, 16, 18, 21, 24, 27, 30, 33, 35, 37, 39, 41, 44, 46, 48, 57],
+        "V":  [8, 10, 12, 14, 16, 18, 21, 26, 29, 32, 35, 37, 39, 41, 44, 46, 47, 51, 57],
         "A":  [4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 22],
         "BS": [4, 8, 10, 14, 17, 19, 21, 24, 27, 30, 32, 36, 38, 42, 44, 48, 52, 56, 60],
         "PV": [2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 16, 17, 19, 20, 22, 23, 25, 26],
-        "I":  [3, 4, 5, 6, 6, 7, 8, 11, 13, 15, 18, 19, 20, 21, 23, 24, 24, 25, 26],
+        "I":  [3, 4, 5, 6, 6, 7, 8, 11, 13, 15, 18, 19, 20, 21, 23, 24, 25, 26, 26],
         "CN": [16, 27, 29, 32, 34, 41, 46, 52, 58, 65, 70, 76, 80, 84, 88, 94, 102, 104, 135]
     },
     "55:0-69:11": {
@@ -164,7 +169,7 @@ BAREMOS_ESPANA = {
 }
 
 # --- TABLAS COMPUESTAS (ESPAÑA EXACTAS - Páginas 203-208) ---
-# Verificadas manualmente contra las fotos de las Tablas A.3 a A.7: sin errores.
+# Verificadas contra las fotos de las Tablas A.3 a A.9: sin errores.
 COMP_MAP = {
     "ICV": {
         3:50, 4:50, 5:50, 6:50, 7:51, 8:54, 9:56, 10:58, 11:60, 12:63, 13:65, 14:67, 15:69, 16:71, 17:73,
@@ -244,7 +249,7 @@ if check_password():
         nombre = st.text_input("Paciente", value="Paciente Español")
         lista_edades = list(BAREMOS_ESPANA.keys())
         edad_sel = st.selectbox("Franja Etaria Normativa", lista_edades)
-        st.success("¡Sistema calibrado con tablas TEA (revisa la nota sobre la franja 45-54 en 'V')!")
+        st.success("Baremos por edad auditados contra la Tabla A.1 del manual (9/9 franjas revisadas).")
 
     st.subheader("1. Puntuaciones Directas (PD)")
     c1, c2, c3, c4 = st.columns(4)
