@@ -43,6 +43,19 @@ def check_password():
 #   - 45:0-54:11 -> CORREGIDA con los valores reales de la foto (el parche
 #     provisional de una revisión anterior no era exacto).
 #   - 85:0-89:11 -> pequeño ajuste en Vocabulario (PE=2: PD 6-7, no 6).
+#   - 25:0-34:11 -> columna Matrices (M) corregida (ver comentario junto
+#     a esa lista más abajo).
+#
+# IMPORTANTE - ALCANCE REAL DE ESTA AUDITORÍA:
+# La verificación por franja se ha centrado sobre todo en la columna
+# Vocabulario (que es donde surgieron los primeros errores) y, en el caso
+# de 25:0-34:11, también en Matrices tras el aviso del usuario. El resto
+# de columnas (C, S, D, A, BS, PV, I, CN) de cada franja NO han recibido
+# el mismo nivel de contraste cruzado entre franjas vecinas, así que no
+# está garantizado que estén libres de errores similares. Si detectas
+# otro resultado que no cuadre con tu cálculo manual, dime la franja de
+# edad, el subtest, el PD y el PE esperado, y se revisa esa columna en
+# concreto contra la foto y contra las franjas de alrededor.
 BAREMOS_ESPANA = {
     "16:0-17:11": {
         "C":  [15, 18, 20, 22, 27, 31, 33, 38, 43, 47, 51, 55, 59, 61, 62, 63, 64, 65, 66],
@@ -85,7 +98,12 @@ BAREMOS_ESPANA = {
         "C":  [16, 21, 24, 26, 31, 35, 37, 43, 47, 51, 56, 58, 61, 62, 63, 64, 65, 66, 66],
         "S":  [8, 11, 13, 14, 15, 17, 19, 20, 22, 24, 25, 27, 28, 29, 30, 31, 32, 33, 36],
         "D":  [11, 13, 16, 17, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 37, 39, 41, 43, 48],
-        "M":  [6, 7, 10, 11, 13, 15, 17, 19, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26, 26],
+        # CORREGIDA: la lista original inflaba varios valores 1-2 puntos por
+        # encima de lo que marcan las franjas vecinas (20:0-24:11 y
+        # 35:0-44:11), que son casi idénticas entre sí en este subtest —
+        # eso hacía que el PE saliera más bajo de lo real para pacientes
+        # de esta franja de edad (ej. 31 años).
+        "M":  [6, 7, 9, 10, 13, 14, 15, 17, 18, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26],
         "V":  [10, 12, 14, 16, 18, 20, 24, 29, 32, 34, 36, 38, 40, 42, 45, 47, 49, 51, 57],
         "A":  [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 22],
         "BS": [8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50, 52, 54, 57, 60],
