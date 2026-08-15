@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
-
 # --- CONFIGURACIÓN Y SEGURIDAD ---
 st.set_page_config(page_title="WAIS-IV España: Sistema Clínico", layout="wide")
-
 def check_password():
     """
     CORREGIDO: la versión original solo mostraba el campo de contraseña la
@@ -16,7 +14,6 @@ def check_password():
         st.session_state["password_correct"] = (
             st.session_state["password"] == "MARITA2026"
         )
-
     if not st.session_state.get("password_correct", False):
         st.title("🧠 WAIS-IV España (TEA): Corrección Exacta")
         st.text_input(
@@ -28,9 +25,7 @@ def check_password():
         if "password_correct" in st.session_state and not st.session_state["password_correct"]:
             st.error("Contraseña incorrecta. Inténtalo de nuevo.")
         return False
-
     return True
-
 # --- MATRIZ DE DATOS: TABLA A.1 (PD -> PE POR SUBTEST) ---
 #
 # AUDITORÍA COMPLETA Y REAL (9/9 franjas de edad, 10/10 subtests cada una),
@@ -200,7 +195,6 @@ BAREMOS_ESPANA = {
         "CN": [0, 0, 1, 2, 3, 4, 5, 7, 9, 13, 16, 19, 26, 30, 35, 42, 48, 56, 135]
     }
 }
-
 # --- TABLAS COMPUESTAS (ESPAÑA EXACTAS - Páginas 203-208) ---
 # Verificadas contra las fotos de las Tablas A.3 a A.9: sin errores.
 COMP_MAP = {
@@ -247,7 +241,6 @@ COMP_MAP = {
         180:160, 181:160, 182:160, 183:160, 184:160, 185:160, 186:160, 187:160, 188:160, 189:160, 190:160
     }
 }
-
 # --- MOTOR LÓGICO ---
 def get_pe(sub, pd_score, edad):
     if edad not in BAREMOS_ESPANA: return 10
@@ -256,15 +249,12 @@ def get_pe(sub, pd_score, edad):
         if pd_score <= limite:
             return i + 1
     return 19
-
 def approx_indice(tipo, suma):
     if tipo in COMP_MAP and suma in COMP_MAP[tipo]:
         return COMP_MAP[tipo][suma]
-
     # El ICG se mantiene con su fórmula base al no ser índice diagnóstico primario
     if tipo == "ICG": return int(42.0 + (1.20 * suma))
     return 100
-
 def desc_clinico(val):
     if val >= 130: return "Muy Superior"
     if val >= 120: return "Superior"
@@ -273,55 +263,162 @@ def desc_clinico(val):
     if val >= 80: return "Bajo el Promedio"
     if val >= 70: return "Limítrofe"
     return "Extremadamente Bajo"
+from datetime import date, datetime
+from io import BytesIO
+from docx import Document
+
+# --- ORDEN DE ADMINISTRACIÓN (el mismo orden en que aparecen las pruebas
+#     en el protocolo en papel, para que copiar los valores sea directo:
+#     se va de arriba a abajo por la hoja, sin saltar entre columnas) ---
+ORDEN_SUBTESTS = [
+    ("C",  "Cubos",               "IRP", 66),
+    ("S",  "Semejanzas",          "ICV", 36),
+    ("D",  "Dígitos",             "IMT", 48),
+    ("M",  "Matrices",            "IRP", 26),
+    ("V",  "Vocabulario",         "ICV", 57),
+    ("A",  "Aritmética",          "IMT", 22),
+    ("BS", "Búsqueda de símbolos","IVP", 60),
+    ("PV", "Puzles visuales",     "IRP", 26),
+    ("I",  "Información",        "ICV", 26),
+    ("CN", "Claves",              "IVP", 135),
+]
+NOMBRE_INDICE = {
+    "ICV": "Índice de Comprensión Verbal",
+    "IRP": "Índice de Razonamiento Perceptivo",
+    "IMT": "Índice de Memoria de Trabajo",
+    "IVP": "Índice de Velocidad de Procesamiento",
+    "ICG": "Índice de Capacidad General",
+    "CIT": "Cociente Intelectual Total",
+}
+
+
+def calcular_edad(fecha_nacimiento, fecha_aplicacion):
+    """Edad cronológica en años/meses/días, con el redondeo hacia abajo
+    habitual en la corrección de tests (igual que se calcula a mano con
+    la tabla 'Cálculo de edad cronológica' del protocolo)."""
+    if fecha_aplicacion < fecha_nacimiento:
+        return None
+    años = fecha_aplicacion.year - fecha_nacimiento.year
+    meses = fecha_aplicacion.month - fecha_nacimiento.month
+    dias = fecha_aplicacion.day - fecha_nacimiento.day
+    if dias < 0:
+        meses -= 1
+        mes_anterior = fecha_aplicacion.month - 1 or 12
+        año_mes_anterior = fecha_aplicacion.year if fecha_aplicacion.month > 1 else fecha_aplicacion.year - 1
+        import calendar
+        dias += calendar.monthrange(año_mes_anterior, mes_anterior)[1]
+    if meses < 0:
+        años -= 1
+        meses += 12
+    return años, meses, dias
+
+
+def franja_para_edad(años, meses, franjas):
+    """Devuelve la clave de BAREMOS_ESPANA cuya franja (p.ej. '25:0-34:11')
+    contiene la edad dada, o None si la edad queda fuera de todas las
+    franjas disponibles (p.ej. menor de 16 o mayor de 89)."""
+    edad_meses_totales = años * 12 + meses
+    for clave in franjas:
+        lo, hi = clave.split("-")
+        lo_a, lo_m = map(int, lo.split(":"))
+        hi_a, hi_m = map(int, hi.split(":"))
+        if (lo_a * 12 + lo_m) <= edad_meses_totales <= (hi_a * 12 + hi_m):
+            return clave
+    return None
+
 
 if check_password():
     st.title("📊 WAIS-IV España (TEA): Software Clínico")
 
+    # --- 0. IDENTIFICACIÓN Y CÁLCULO DE EDAD CRONOLÓGICA ---
+    # (mismo bloque que la tabla "Cálculo de edad cronológica" del
+    # protocolo: se introducen las dos fechas y la franja normativa se
+    # sugiere sola, en vez de tener que calcularla y buscarla a mano).
     with st.sidebar:
         st.header("Identificación")
         nombre = st.text_input("Paciente", value="Paciente Español")
+        sexo = st.radio("Sexo", ["Varón", "Mujer"], horizontal=True)
+
+        st.subheader("Cálculo de edad cronológica")
+        fecha_nacimiento = st.date_input(
+            "Fecha de nacimiento", value=date(1990, 1, 1),
+            min_value=date(1900, 1, 1), max_value=date.today(), format="DD/MM/YYYY",
+        )
+        fecha_aplicacion = st.date_input(
+            "Fecha de aplicación", value=date.today(),
+            min_value=date(1900, 1, 1), max_value=date.today(), format="DD/MM/YYYY",
+        )
+
         lista_edades = list(BAREMOS_ESPANA.keys())
-        edad_sel = st.selectbox("Franja Etaria Normativa", lista_edades)
+        edad_calculada = calcular_edad(fecha_nacimiento, fecha_aplicacion)
+        franja_sugerida = None
+        if edad_calculada:
+            años_c, meses_c, dias_c = edad_calculada
+            st.metric("Edad cronológica", f"{años_c} a  {meses_c} m  {dias_c} d")
+            franja_sugerida = franja_para_edad(años_c, meses_c, lista_edades)
+            if franja_sugerida:
+                st.success(f"Franja normativa sugerida: {franja_sugerida}")
+            else:
+                st.warning("La edad calculada queda fuera de las franjas normativas disponibles (16-89 años). Selecciona la franja manualmente.")
+        else:
+            st.error("La fecha de aplicación es anterior a la de nacimiento.")
+
+        indice_por_defecto = lista_edades.index(franja_sugerida) if franja_sugerida in lista_edades else 0
+        edad_sel = st.selectbox(
+            "Franja etaria normativa (puedes forzarla si lo necesitas)",
+            lista_edades, index=indice_por_defecto,
+        )
         st.success("Baremos por edad auditados contra la Tabla A.1 del manual (9/9 franjas revisadas).")
 
-    st.subheader("1. Puntuaciones Directas (PD)")
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown("**ICV**")
-        p_s = st.number_input("Semejanzas (S)", 0, 36)
-        p_v = st.number_input("Vocabulario (V)", 0, 57)
-        p_i = st.number_input("Información (I)", 0, 26)
-    with c2:
-        st.markdown("**IRP**")
-        p_c = st.number_input("Cubos (C)", 0, 66)
-        p_m = st.number_input("Matrices (M)", 0, 26)
-        p_pv = st.number_input("Puzles (PV)", 0, 26)
-    with c3:
-        st.markdown("**IMT**")
-        p_d = st.number_input("Dígitos (D)", 0, 48)
-        p_a = st.number_input("Aritmética (A)", 0, 22)
-    with c4:
-        st.markdown("**IVP**")
-        p_bs = st.number_input("Símbolos (BS)", 0, 60)
-        p_cn = st.number_input("Claves (CN)", 0, 135)
+    # --- 1. PUNTUACIONES DIRECTAS (PD) ---
+    # Tabla única y en el mismo orden que el protocolo en papel (antes
+    # estaba repartida en 4 columnas agrupadas por índice, lo que obligaba
+    # a saltar de columna en columna mientras se copiaban los valores).
+    st.subheader("1. Puntuaciones directas (PD)")
+    st.caption("Introduce cada puntuación directa en el mismo orden en que aparece en el protocolo. La puntuación escalar (PE) se calcula al momento.")
 
-    # --- CÁLCULO DIRECTO REACTIVO ---
-    e_s, e_v, e_i = get_pe("S", p_s, edad_sel), get_pe("V", p_v, edad_sel), get_pe("I", p_i, edad_sel)
-    e_c, e_m, e_pv = get_pe("C", p_c, edad_sel), get_pe("M", p_m, edad_sel), get_pe("PV", p_pv, edad_sel)
-    e_d, e_a = get_pe("D", p_d, edad_sel), get_pe("A", p_a, edad_sel)
-    e_bs, e_cn = get_pe("BS", p_bs, edad_sel), get_pe("CN", p_cn, edad_sel)
+    encabezado = st.columns([3, 1.2, 1, 2])
+    encabezado[0].markdown("**Subtest**")
+    encabezado[1].markdown("**PD**")
+    encabezado[2].markdown("**PE**")
+    encabezado[3].markdown("**Índice**")
 
-    icv = approx_indice("ICV", e_s + e_v + e_i)
-    irp = approx_indice("IRP", e_c + e_m + e_pv)
-    imt = approx_indice("IMT", e_d + e_a)
-    ivp = approx_indice("IVP", e_bs + e_cn)
-    icg = approx_indice("ICG", e_s + e_v + e_i + e_c + e_m + e_pv)
-    cit = approx_indice("CIT", e_s+e_v+e_i+e_c+e_m+e_pv+e_d+e_a+e_bs+e_cn)
+    pd_scores = {}
+    pe_scores = {}
+    for codigo, nombre_subtest, indice, pd_max in ORDEN_SUBTESTS:
+        fila = st.columns([3, 1.2, 1, 2])
+        fila[0].write(nombre_subtest)
+        pd_scores[codigo] = fila[1].number_input(
+            f"PD {nombre_subtest}", 0, pd_max, key=f"pd_{codigo}", label_visibility="collapsed",
+        )
+        pe_scores[codigo] = get_pe(codigo, pd_scores[codigo], edad_sel)
+        fila[2].markdown(f"**{pe_scores[codigo]}**")
+        fila[3].caption(indice)
+
+    e_s, e_v, e_i = pe_scores["S"], pe_scores["V"], pe_scores["I"]
+    e_c, e_m, e_pv = pe_scores["C"], pe_scores["M"], pe_scores["PV"]
+    e_d, e_a = pe_scores["D"], pe_scores["A"]
+    e_bs, e_cn = pe_scores["BS"], pe_scores["CN"]
+
+    suma_icv, suma_irp = e_s + e_v + e_i, e_c + e_m + e_pv
+    suma_imt, suma_ivp = e_d + e_a, e_bs + e_cn
+    suma_icg = e_s + e_v + e_i + e_c + e_m + e_pv
+    suma_cit = suma_icv + suma_irp + suma_imt + suma_ivp
+
+    icv = approx_indice("ICV", suma_icv)
+    irp = approx_indice("IRP", suma_irp)
+    imt = approx_indice("IMT", suma_imt)
+    ivp = approx_indice("IVP", suma_ivp)
+    icg = approx_indice("ICG", suma_icg)
+    cit = approx_indice("CIT", suma_cit)
+    dis = max(icv, irp, imt, ivp) - min(icv, irp, imt, ivp)
 
     st.divider()
+
+    # --- 2. RESULTADOS ---
+    st.subheader("2. Resultados")
     st.success(f"Resultados TEA | Paciente: {nombre} | Edad: {edad_sel}")
     m1, m2, m3, m4, m5, m6 = st.columns(6)
-
     m1.metric("ICV", icv, desc_clinico(icv))
     m2.metric("IRP", irp, desc_clinico(irp))
     m3.metric("IMT", imt, desc_clinico(imt))
@@ -329,17 +426,152 @@ if check_password():
     m5.metric("ICG", icg, desc_clinico(icg))
     m6.metric("CIT", cit, desc_clinico(cit), delta_color="off")
 
-    dis = max(icv, irp, imt, ivp) - min(icv, irp, imt, ivp)
     if dis >= 23:
         st.error(f"⚠️ DISCREPANCIA: Diferencia de {dis} pts entre índices. Use el ICG.")
     else:
         st.info("✅ PERFIL ARMÓNICO: El CIT es representativo.")
 
-    st.subheader("Puntuaciones Escalares (PE)")
+    # "Sumas de puntuaciones escalares" + tabla PD/PE en el mismo orden
+    # que el protocolo, replicando el formato de la hoja de resumen.
+    st.subheader("Conversión de puntuaciones directas en escalares")
     df = pd.DataFrame({
-        "Prueba": ["S", "V", "I", "C", "M", "PV", "D", "A", "BS", "CN"],
-        "PD": [p_s, p_v, p_i, p_c, p_m, p_pv, p_d, p_a, p_bs, p_cn],
-        "PE": [e_s, e_v, e_i, e_c, e_m, e_pv, e_d, e_a, e_bs, e_cn]
+        "Subtest": [n for _, n, _, _ in ORDEN_SUBTESTS],
+        "Índice": [ix for _, _, ix, _ in ORDEN_SUBTESTS],
+        "PD": [pd_scores[c] for c, _, _, _ in ORDEN_SUBTESTS],
+        "PE": [pe_scores[c] for c, _, _, _ in ORDEN_SUBTESTS],
     })
-    st.table(df.set_index("Prueba").T)
-    st.bar_chart(df.set_index("Prueba")["PE"])
+    st.table(df.set_index("Subtest"))
+
+    sumas_df = pd.DataFrame({
+        "ICV": [suma_icv], "IRP": [suma_irp], "IMT": [suma_imt], "IVP": [suma_ivp], "CIT": [suma_cit],
+    }, index=["Suma de PE"])
+    st.table(sumas_df)
+
+    st.subheader("Perfil de puntuaciones compuestas")
+    perfil_df = pd.DataFrame({
+        "ICV": [icv], "IRP": [irp], "IMT": [imt], "IVP": [ivp], "ICG": [icg], "CIT": [cit],
+    }, index=["Puntuación"])
+    st.table(perfil_df)
+
+    st.bar_chart(df.set_index("Subtest")["PE"])
+
+    # --- 3. INFORME ---
+    st.divider()
+    st.subheader("3. Informe")
+
+    if st.button("📄 GENERAR INFORME"):
+
+        def clasif_frase(val):
+            return desc_clinico(val).lower()
+
+        art = "El evaluado" if sexo == "Varón" else "La evaluada"
+        del_al = "del evaluado" if sexo == "Varón" else "de la evaluada"
+        edad_txt = f"{años_c} años y {meses_c} meses" if edad_calculada else edad_sel
+
+        intro = (
+            "El WAIS-IV (Wechsler Adult Intelligence Scale, cuarta edición) es una escala de "
+            "inteligencia individual, estandarizada y de uso clínico, dirigida a adolescentes "
+            "mayores y personas adultas. Evalúa el funcionamiento cognitivo a través de cuatro "
+            "índices principales -comprensión verbal, razonamiento perceptivo, memoria de trabajo "
+            "y velocidad de procesamiento- que se combinan en un Cociente Intelectual Total (CIT) "
+            f"representativo del funcionamiento cognitivo global.\n\n"
+            f"{art} presenta una edad cronológica de {edad_txt} en el momento de la aplicación, "
+            f"dentro de la franja normativa {edad_sel}."
+        )
+
+        parrafo_indices = (
+            f"En el {NOMBRE_INDICE['ICV']} (ICV) obtiene {icv} puntos, un rendimiento "
+            f"{clasif_frase(icv)}; en el {NOMBRE_INDICE['IRP']} (IRP), {irp} puntos, "
+            f"{clasif_frase(irp)}; en el {NOMBRE_INDICE['IMT']} (IMT), {imt} puntos, "
+            f"{clasif_frase(imt)}; y en el {NOMBRE_INDICE['IVP']} (IVP), {ivp} puntos, "
+            f"{clasif_frase(ivp)}."
+        )
+
+        if dis >= 23:
+            parrafo_discrepancia = (
+                f"Se observa una discrepancia de {dis} puntos entre el índice más alto y el más "
+                f"bajo, un valor clínicamente significativo que aconseja no interpretar el CIT "
+                f"como una medida única del funcionamiento intelectual, prestando mayor atención "
+                f"al perfil diferencial entre índices. En estos casos puede resultar más "
+                f"representativo el {NOMBRE_INDICE['ICG']} (ICG), que se sitúa en {icg} puntos "
+                f"({clasif_frase(icg)}), calculado únicamente a partir de los subtests verbales y "
+                f"perceptivos."
+            )
+        else:
+            parrafo_discrepancia = (
+                f"La diferencia entre el índice más alto y el más bajo es de {dis} puntos, dentro "
+                f"de límites no significativos, por lo que el perfil puede considerarse "
+                f"razonablemente homogéneo."
+            )
+
+        parrafo_cit = (
+            f"El Cociente Intelectual Total (CIT) resultante es de {cit} puntos, lo que sitúa el "
+            f"funcionamiento cognitivo global {del_al} en un rango {clasif_frase(cit)}."
+        )
+
+        informe_final = (
+            f"INFORME DE EVALUACIÓN WAIS-IV\n\n"
+            f"Paciente: {nombre}\n"
+            f"Edad cronológica: {edad_txt}\n"
+            f"Franja normativa: {edad_sel}\n"
+            f"Fecha de aplicación: {fecha_aplicacion.strftime('%d/%m/%Y')}\n\n"
+            f"{intro}\n\n"
+            f"RESULTADOS\n{parrafo_indices} {parrafo_cit}\n\n"
+            f"INTERPRETACIÓN DEL PERFIL\n{parrafo_discrepancia}"
+        )
+
+        st.text_area("Vista previa del informe:", informe_final, height=400)
+
+        # --- Documento Word ---
+        doc = Document()
+        doc.add_heading("INFORME DE EVALUACIÓN WAIS-IV", 0)
+
+        doc.add_heading("Datos de identificación", level=1)
+        tabla_id = doc.add_table(rows=0, cols=2)
+        for etiqueta, valor in [
+            ("Paciente", nombre),
+            ("Edad cronológica", edad_txt),
+            ("Franja normativa", edad_sel),
+            ("Fecha de aplicación", fecha_aplicacion.strftime("%d/%m/%Y")),
+            ("Fecha de nacimiento", fecha_nacimiento.strftime("%d/%m/%Y")),
+        ]:
+            fila = tabla_id.add_row().cells
+            fila[0].text = etiqueta
+            fila[1].text = str(valor)
+
+        doc.add_heading("Descripción de la prueba", level=1)
+        doc.add_paragraph(intro)
+
+        doc.add_heading("Puntuaciones directas y escalares", level=1)
+        tabla_pd = doc.add_table(rows=1, cols=4)
+        hdr = tabla_pd.rows[0].cells
+        hdr[0].text, hdr[1].text, hdr[2].text, hdr[3].text = "Subtest", "Índice", "PD", "PE"
+        for codigo, nombre_subtest, indice, _ in ORDEN_SUBTESTS:
+            fila = tabla_pd.add_row().cells
+            fila[0].text = nombre_subtest
+            fila[1].text = indice
+            fila[2].text = str(pd_scores[codigo])
+            fila[3].text = str(pe_scores[codigo])
+
+        doc.add_heading("Puntuaciones compuestas", level=1)
+        tabla_comp = doc.add_table(rows=1, cols=3)
+        hdr = tabla_comp.rows[0].cells
+        hdr[0].text, hdr[1].text, hdr[2].text = "Índice", "Puntuación", "Clasificación"
+        for sigla, valor in [("ICV", icv), ("IRP", irp), ("IMT", imt), ("IVP", ivp), ("ICG", icg), ("CIT", cit)]:
+            fila = tabla_comp.add_row().cells
+            fila[0].text = f"{NOMBRE_INDICE[sigla]} ({sigla})"
+            fila[1].text = str(valor)
+            fila[2].text = desc_clinico(valor)
+
+        doc.add_heading("Interpretación del perfil", level=1)
+        doc.add_paragraph(parrafo_indices + " " + parrafo_cit)
+        doc.add_paragraph(parrafo_discrepancia)
+
+        bio = BytesIO()
+        doc.save(bio)
+        st.download_button(
+            "📥 Descargar informe en Word",
+            bio.getvalue(),
+            f"Informe_WAIS-IV_{nombre.replace(' ', '_')}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
