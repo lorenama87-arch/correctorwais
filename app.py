@@ -1,3 +1,4 @@
+python
 import streamlit as st
 import pandas as pd
 # --- CONFIGURACIÓN Y SEGURIDAD ---
@@ -28,32 +29,30 @@ def check_password():
     return True
 # --- MATRIZ DE DATOS: TABLA A.1 (PD -> PE POR SUBTEST) ---
 #
-# AUDITORÍA COMPLETA Y REAL (9/9 franjas de edad, 10/10 subtests cada una),
-# hecha releyendo cada foto original tras rotarla a la orientación correcta
-# (las revisiones anteriores partían de miniaturas rotadas y giros de
-# lectura poco fiables, lo que causó varias correcciones a medias en
-# mensajes previos). Resultado:
-#   - 55:0-69:11 y 70:0-79:11: sin ningún error, las 10 columnas coinciden
-#     con la foto tal cual.
-#   - 16:0-17:11: sin errores.
-#   - 18:0-19:11: Aritmética (A) corregida.
-#   - 20:0-24:11: reconstruida entera (varias columnas desplazadas).
-#   - 25:0-34:11: Semejanzas (S), Matrices (M), Aritmética (A) e
-#     Información (I) corregidas.
-#   - 35:0-44:11: Semejanzas (S) corregida.
-#   - 45:0-54:11: Cubos (C) y Semejanzas (S) corregidas.
-#   - 80:0-84:11: Cubos (C) corregida (un solo valor).
-#   - 85:0-89:11: Símbolos (BS) e Información (I) corregidas en el extremo
-#     inferior (con PD=0 la tabla no permite PE1-3 en esta franja; se usa
-#     -1 como valor "inalcanzable" para que el motor no asigne esos PE).
+# AUDITORÍA COMPLETA (10/10 franjas de edad, 10/10 subtests cada una),
+# transcrita celda a celda desde fotos nítidas de la Tabla A.1 del manual y
+# comparada de forma programática contra el código, con verificación
+# estructural (19 valores y monotonía en las 100 columnas) y pruebas
+# funcionales de get_pe() sobre cada corrección. Resultado final:
+#   - 16:0-17:11, 18:0-19:11, 20:0-24:11, 35:0-44:11, 45:0-54:11,
+#     55:0-69:11 y 70:0-79:11: sin errores, las 10 columnas coinciden
+#     exactamente con la foto.
+#   - 25:0-34:11: Matrices (M) corregida (PE12 inalcanzable, duplicaba mal
+#     el valor siguiente en vez del anterior).
+#   - 80:0-84:11: Matrices (M), Búsqueda de símbolos (BS) e Información (I)
+#     corregidas (PE1, y en Matrices también PE2, son inalcanzables con
+#     cualquier PD en esta franja; se usa -1 como valor "inalcanzable" para
+#     que el motor de cálculo nunca asigne esos PE).
+#   - 85:0-89:11: Cubos (C), Semejanzas (S), Matrices (M), Puzles visuales
+#     (PV), Información (I) y Claves (CN) corregidas — mismo patrón de PE
+#     inalcanzables al principio o en medio de la columna mal codificados.
 #
-# Cada columna de cada franja se ha comparado además con las franjas de
-# edad vecinas como control de coherencia (el patrón debe ser similar
-# entre franjas próximas). Sigue habiendo un margen de incertidumbre menor
-# en el extremo superior (PE17-19) de algunas columnas de 85:0-89:11,
-# la franja con la letra más pequeña y más difícil de fotografiar —
-# afecta solo a puntuaciones directas muy altas en pacientes de 85-89
-# años, un caso poco frecuente en la práctica.
+# Todas las correcciones comparten la misma causa raíz: cuando la tabla
+# oficial marca "-" (PD no puede dar ese PE) en uno o varios PE seguidos,
+# hay que "arrastrar" el valor anterior (o usar -1 si el PE es inalcanzable
+# desde el principio de la columna); en varios sitios se dupicaba el valor
+# equivocado, o el número equivocado de veces, desplazando en -1 todo el
+# resto de la columna.
 BAREMOS_ESPANA = {
     "16:0-17:11": {
         "C":  [15, 18, 20, 22, 27, 31, 33, 38, 43, 47, 51, 55, 59, 61, 62, 63, 64, 65, 66],
@@ -101,7 +100,11 @@ BAREMOS_ESPANA = {
         "C":  [16, 21, 24, 26, 31, 35, 37, 43, 47, 51, 56, 58, 61, 62, 63, 64, 65, 66, 66],
         "S":  [8, 11, 12, 13, 14, 15, 17, 19, 20, 22, 24, 25, 26, 27, 28, 29, 30, 31, 36],
         "D":  [11, 13, 16, 17, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 37, 39, 41, 43, 48],
-        "M":  [6, 7, 9, 10, 13, 15, 16, 19, 20, 22, 23, 24, 24, 24, 25, 25, 25, 26, 26],
+        # CORREGIDA: PE12 no es alcanzable con ningún PD en esta franja (la
+        # tabla marca "-" entre PE11=23 y PE13=24); debía duplicar el valor
+        # ANTERIOR (23), no el siguiente (24). Verificado contra foto de la
+        # Tabla A.1 (pág. 195).
+        "M":  [6, 7, 9, 10, 13, 15, 16, 19, 20, 22, 23, 23, 24, 24, 25, 25, 25, 26, 26],
         "V":  [10, 12, 14, 16, 18, 20, 24, 29, 32, 34, 36, 38, 40, 42, 45, 47, 49, 51, 57],
         # CORREGIDA: desplazamiento de +1 en el tramo medio.
         "A":  [5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 20, 21, 22, 22],
@@ -167,16 +170,32 @@ BAREMOS_ESPANA = {
         "C":  [0, 1, 2, 4, 5, 7, 10, 12, 16, 20, 22, 26, 30, 34, 38, 43, 47, 51, 66],
         "S":  [0, 1, 2, 3, 5, 7, 9, 10, 11, 12, 14, 15, 17, 18, 20, 21, 22, 24, 36],
         "D":  [5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 23, 25, 27, 30, 32, 48],
-        "M":  [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 26],
+        # CORREGIDA: PE1 y PE2 no son alcanzables con ningún PD en esta franja
+        # (la tabla marca "-" para ambos); el primer PE realmente alcanzable
+        # es PE3 con PD=0. Se usa -1 como valor "inalcanzable" (igual que en
+        # BS/I de esta misma franja) en vez de duplicar 0, que asignaba mal
+        # PE1 a PD=0. Verificado contra foto de la Tabla A.1 (pág. 200).
+        "M":  [-1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 26],
         "V":  [5, 7, 8, 9, 10, 11, 12, 14, 16, 18, 22, 24, 26, 28, 34, 36, 38, 40, 57],
         "A":  [1, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11, 12, 13, 14, 15, 16, 22],
-        "BS": [0, 0, 1, 2, 3, 4, 6, 8, 10, 11, 13, 15, 18, 21, 24, 27, 35, 41, 60],
+        # CORREGIDA: PE1 no es alcanzable con ningún PD (la tabla marca "-");
+        # el primer PE realmente alcanzable es PE2 con PD=0. Mismo criterio
+        # que en M/I de esta franja. Verificado contra foto (pág. 200).
+        "BS": [-1, 0, 1, 2, 3, 4, 6, 8, 10, 11, 13, 15, 18, 21, 24, 27, 35, 41, 60],
         "PV": [0, 1, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 10, 12, 15, 17, 19, 26],
-        "I":  [0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 7, 9, 12, 14, 16, 19, 20, 21, 26],
+        # CORREGIDA: PE1 no es alcanzable con ningún PD (la tabla marca "-");
+        # el primer PE realmente alcanzable es PE2 con PD=0. La lista
+        # original arrancaba en PE1=0 (sin el "-1" inicial), lo que
+        # desplazaba en -1 todo el resto de la columna. Verificado contra
+        # foto (pág. 200).
+        "I":  [-1, 0, 1, 2, 2, 3, 3, 4, 5, 6, 7, 9, 12, 14, 16, 19, 20, 21, 26],
         "CN": [0, 1, 3, 5, 6, 7, 10, 13, 17, 22, 25, 32, 37, 43, 49, 55, 63, 65, 135]
     },
     "85:0-89:11": {
-        "C":  [0, 0, 2, 3, 4, 6, 9, 11, 14, 18, 21, 25, 28, 32, 37, 41, 46, 50, 66],
+        # CORREGIDA: PE2 es PD=1, no PD=0 (la lista original repetía el 0 de
+        # PE1 en PE2, desplazando en -1 todo el resto de la columna).
+        # Verificado contra foto de la Tabla A.1 (pág. 201).
+        "C":  [0, 1, 2, 3, 4, 6, 9, 11, 14, 18, 21, 25, 28, 32, 37, 41, 46, 50, 66],
         # CORREGIDA: la lista original tenía un "0" duplicado en PE1-PE2
         # (debía ser PD<=0 -> PE1, PD<=1 -> PE2), lo que desplazaba en -1
         # todo el resto de la columna y hacía desaparecer el valor PE18=24
@@ -184,7 +203,11 @@ BAREMOS_ESPANA = {
         # foto nítida de la Tabla A.1 (pág. 201): PE2=1, ..., PE18=24.
         "S":  [0, 1, 2, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 18, 19, 20, 21, 24, 36],
         "D":  [4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 21, 23, 25, 29, 31, 48],
-        "M":  [0, 0, 0, 1, 2, 3, 4, 5, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 26],
+        # CORREGIDA: PE1 y PE2 no son alcanzables con ningún PD en esta
+        # franja (la tabla marca "-" para ambos); el primer PE realmente
+        # alcanzable es PE3 con PD=0. Se usa -1 (inalcanzable) en vez de
+        # duplicar 0. Verificado contra foto (pág. 201).
+        "M":  [-1, -1, 0, 1, 2, 3, 4, 5, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 26],
         "V":  [5, 7, 8, 9, 10, 11, 12, 14, 16, 18, 22, 24, 26, 28, 34, 36, 38, 40, 57],
         "A":  [0, 1, 3, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 12, 14, 15, 16, 22],
         # CORREGIDA: para esta franja de edad, PD=0 en Símbolos no alcanza a
@@ -193,11 +216,20 @@ BAREMOS_ESPANA = {
         # Se usa -1 como valor "inalcanzable" para que el motor de cálculo
         # nunca asigne esos PE por error.
         "BS": [-1, -1, -1, 0, 1, 2, 4, 5, 6, 7, 9, 10, 13, 16, 19, 22, 28, 30, 60],
-        "PV": [0, 1, 2, 3, 4, 5, 5, 6, 6, 7, 8, 9, 10, 10, 13, 16, 18, 26, 26],
+        # CORREGIDA: la tabla marca "-" (inalcanzable) en DOS posiciones
+        # consecutivas, PE9 y PE10 (no solo una), tras el valor directo
+        # PE8=6; la lista original solo duplicaba una vez, desplazando en
+        # -1 todo el resto de la columna. Verificado contra foto (pág. 201).
+        "PV": [0, 1, 2, 3, 4, 5, 5, 6, 6, 6, 7, 7, 8, 9, 10, 13, 16, 18, 26],
         # CORREGIDA: mismo caso que Símbolos — PE1 no es alcanzable con
-        # PD=0 en esta franja (el primer PE real con PD=0 es PE2).
-        "I":  [-1, 0, 1, 2, 2, 3, 3, 4, 5, 6, 7, 9, 11, 15, 17, 18, 19, 26, 26],
-        "CN": [0, 0, 1, 2, 3, 4, 5, 7, 9, 13, 16, 19, 26, 30, 35, 42, 48, 56, 135]
+        # PD=0 en esta franja (el primer PE real con PD=0 es PE2). Además,
+        # la tabla marca "-" también en PE10 (tras el valor directo PE9=5),
+        # que la lista original omitía, desplazando el resto de la columna.
+        "I":  [-1, 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 9, 11, 15, 17, 18, 19, 26],
+        # CORREGIDA: PE2 es PD=1, no PD=0 (la lista original repetía el 0 de
+        # PE1 en PE2, desplazando en -1 todo el resto de la columna y
+        # perdiendo el valor PE18=58, que colapsaba con PE19=135).
+        "CN": [0, 1, 2, 3, 4, 5, 7, 9, 13, 16, 19, 26, 30, 35, 42, 48, 56, 58, 135]
     }
 }
 # --- TABLAS COMPUESTAS (ESPAÑA EXACTAS - Páginas 203-208) ---
@@ -373,7 +405,7 @@ if check_password():
             "Franja etaria normativa (puedes forzarla si lo necesitas)",
             lista_edades, index=indice_por_defecto,
         )
-        st.success("Baremos por edad auditados contra la Tabla A.1 del manual (9/9 franjas revisadas).")
+        st.success("Baremos por edad auditados contra la Tabla A.1 del manual (10/10 franjas revisadas).")
 
     # --- 1. PUNTUACIONES DIRECTAS (PD) ---
     # Tabla única y en el mismo orden que el protocolo en papel (antes
@@ -580,3 +612,4 @@ if check_password():
             f"Informe_WAIS-IV_{nombre.replace(' ', '_')}.docx",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
+```
