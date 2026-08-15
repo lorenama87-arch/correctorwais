@@ -52,6 +52,31 @@ def check_password():
 # desde el principio de la columna); en varios sitios se dupicaba el valor
 # equivocado, o el número equivocado de veces, desplazando en -1 todo el
 # resto de la columna.
+#
+# PRUEBAS OPCIONALES (FI, CO, B, LN, CA): añadidas a partir de fotos de la
+# Tabla A.1 que incluyen estas 5 columnas además de las 10 principales.
+# AUDITORÍA DE RIGOR (segunda pasada, 2026-08-15): se releyeron las 10
+# franjas comparando cada columna con la primera transcripción, con
+# verificación estructural (19 valores, monotonía) tras cada corrección.
+#   - Comprensión (CO) en 35:0-44:11, 45:0-54:11 y 55:0-69:11: en la primera
+#     pasada la columna dio 20 valores en vez de 19 porque el tramo final se
+#     leyó partido en dos rangos (p.ej. "32-33" + "34" + "35-36") en vez de
+#     fusionado en un único PE19 ("34-36"). Releídas con cuidado y ya
+#     cargadas en las tres franjas.
+#   - Cancelación (CA), Balanzas (B) y Letras y números (LN) siguen sin
+#     aparecer en la Tabla A.1 del manual a partir de 70:0-79:11: se
+#     confirmó en una segunda lectura independiente de esas tres franjas
+#     (mismo resultado ambas veces), así que no parece un recorte accidental
+#     de la foto sino que esas pruebas no están baremadas a partir de esa
+#     edad. Figuras incompletas (FI) y Comprensión (CO) sí están presentes
+#     en las 10 franjas, incluidas 70:0-79:11, 80:0-84:11 y 85:0-89:11.
+#   - El resto de columnas opcionales (FI, CA, B, LN en las 7 franjas donde
+#     existen) se releyeron íntegramente y coincidieron exactamente con la
+#     primera transcripción, sin cambios.
+# Estas pruebas opcionales son solo informativas: no se suman a ningún
+# índice compuesto (ver ORDEN_OPCIONALES). Ya no quedan huecos "N/D"
+# salvo los reales (CA/B/LN a partir de 70:0-79:11, que el manual no
+# barema para esas edades).
 BAREMOS_ESPANA = {
     "16:0-17:11": {
         "C":  [15, 18, 20, 22, 27, 31, 33, 38, 43, 47, 51, 55, 59, 61, 62, 63, 64, 65, 66],
@@ -63,7 +88,12 @@ BAREMOS_ESPANA = {
         "BS": [9, 13, 16, 20, 22, 24, 26, 28, 31, 34, 36, 38, 41, 43, 46, 51, 55, 57, 60],
         "PV": [4, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22, 22, 23, 24, 25, 26],
         "I":  [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 15, 16, 18, 19, 20, 21, 22, 26],
-        "CN": [23, 30, 39, 41, 48, 51, 56, 61, 66, 71, 76, 81, 85, 88, 97, 99, 102, 116, 135]
+        "CN": [23, 30, 39, 41, 48, 51, 56, 61, 66, 71, 76, 81, 85, 88, 97, 99, 102, 116, 135],
+        "FI": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 24],
+        "CA": [15, 20, 23, 25, 27, 31, 33, 36, 39, 41, 44, 48, 51, 54, 57, 60, 63, 65, 72],
+        "CO": [2, 3, 7, 10, 12, 13, 14, 17, 19, 20, 22, 23, 25, 27, 28, 30, 32, 33, 36],
+        "B": [0, 2, 4, 6, 7, 10, 13, 14, 15, 17, 19, 20, 22, 23, 24, 25, 26, 27, 27],
+        "LN": [4, 9, 12, 13, 15, 16, 17, 18, 19, 19, 20, 21, 22, 23, 24, 25, 26, 27, 30],
     },
     "18:0-19:11": {
         "C":  [16, 20, 22, 24, 28, 32, 34, 40, 45, 50, 54, 57, 60, 61, 62, 63, 64, 65, 66],
@@ -77,7 +107,12 @@ BAREMOS_ESPANA = {
         "BS": [10, 15, 17, 21, 24, 27, 29, 31, 34, 36, 38, 41, 43, 45, 48, 51, 55, 57, 60],
         "PV": [4, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22, 23, 23, 24, 25, 26],
         "I":  [2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 17, 18, 19, 20, 21, 22, 23, 26],
-        "CN": [29, 36, 42, 46, 52, 58, 63, 69, 73, 79, 84, 88, 91, 94, 101, 104, 108, 118, 135]
+        "CN": [29, 36, 42, 46, 52, 58, 63, 69, 73, 79, 84, 88, 91, 94, 101, 104, 108, 118, 135],
+        "FI": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 24],
+        "CA": [17, 22, 26, 28, 31, 33, 35, 37, 39, 43, 46, 49, 53, 56, 59, 63, 66, 70, 72],
+        "CO": [2, 4, 9, 12, 14, 16, 17, 19, 20, 21, 23, 24, 26, 27, 28, 29, 30, 32, 36],
+        "B": [0, 2, 4, 6, 8, 10, 13, 14, 15, 17, 19, 20, 22, 23, 24, 25, 26, 27, 27],
+        "LN": [5, 9, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30],
     },
     # --- RECONSTRUIDA ENTERA (10/10 columnas) desde una foto nítida y bien
     # orientada de la Tabla A.1. La reconstrucción anterior de esta franja
@@ -93,7 +128,12 @@ BAREMOS_ESPANA = {
         "BS": [11, 16, 18, 21, 23, 27, 29, 31, 33, 37, 39, 42, 44, 47, 50, 54, 56, 58, 60],
         "PV": [4, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22, 23, 23, 24, 25, 26],
         "I":  [3, 4, 5, 5, 6, 7, 9, 11, 13, 14, 16, 18, 19, 20, 21, 22, 23, 24, 26],
-        "CN": [29, 37, 42, 47, 51, 59, 64, 70, 74, 80, 85, 89, 92, 95, 101, 105, 110, 117, 135]
+        "CN": [29, 37, 42, 47, 51, 59, 64, 70, 74, 80, 85, 89, 92, 95, 101, 105, 110, 117, 135],
+        "FI": [2, 4, 5, 6, 7, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24],
+        "CA": [19, 22, 26, 28, 31, 33, 35, 37, 39, 43, 46, 49, 53, 56, 60, 64, 66, 70, 72],
+        "CO": [2, 5, 10, 13, 15, 17, 18, 20, 21, 22, 24, 25, 27, 28, 29, 30, 31, 32, 36],
+        "B": [0, 2, 5, 6, 8, 10, 13, 14, 15, 17, 19, 20, 22, 23, 24, 25, 26, 27, 27],
+        "LN": [5, 9, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30],
     },
     "25:0-34:11": {
         "C":  [16, 21, 24, 26, 31, 35, 37, 43, 47, 51, 56, 58, 61, 62, 63, 64, 65, 66, 66],
@@ -111,7 +151,12 @@ BAREMOS_ESPANA = {
         "PV": [5, 8, 9, 10, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 24, 25, 26, 26, 26],
         # CORREGIDA: PE7 es PD<=9, no <=10.
         "I":  [3, 4, 5, 6, 7, 8, 9, 11, 14, 16, 18, 19, 20, 21, 22, 23, 24, 26, 26],
-        "CN": [26, 36, 38, 43, 46, 55, 60, 66, 71, 77, 82, 87, 90, 94, 98, 103, 109, 114, 135]
+        "CN": [26, 36, 38, 43, 46, 55, 60, 66, 71, 77, 82, 87, 90, 94, 98, 103, 109, 114, 135],
+        "FI": [2, 4, 5, 6, 7, 9, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+        "CA": [18, 22, 24, 26, 31, 33, 36, 38, 41, 45, 47, 51, 56, 59, 61, 65, 67, 70, 72],
+        "CO": [2, 5, 10, 13, 15, 17, 19, 20, 21, 24, 25, 26, 28, 29, 30, 31, 33, 34, 36],
+        "B": [1, 3, 5, 7, 9, 11, 13, 15, 16, 18, 19, 21, 22, 23, 24, 25, 26, 27, 27],
+        "LN": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 21, 22, 23, 24, 25, 26, 27, 28, 30],
     },
     "35:0-44:11": {
         "C":  [12, 18, 21, 23, 28, 32, 35, 39, 43, 48, 52, 55, 58, 59, 61, 62, 64, 65, 66],
@@ -124,7 +169,16 @@ BAREMOS_ESPANA = {
         "BS": [6, 12, 14, 18, 20, 23, 25, 28, 31, 34, 36, 40, 42, 45, 48, 51, 53, 56, 60],
         "PV": [3, 5, 6, 7, 8, 9, 11, 12, 14, 15, 16, 18, 19, 20, 22, 23, 24, 25, 26],
         "I":  [3, 4, 5, 6, 6, 7, 9, 11, 14, 17, 18, 19, 20, 21, 23, 24, 25, 26, 26],
-        "CN": [20, 26, 32, 37, 43, 49, 55, 61, 67, 73, 79, 84, 87, 91, 95, 100, 107, 111, 135]
+        "CN": [20, 26, 32, 37, 43, 49, 55, 61, 67, 73, 79, 84, 87, 91, 95, 100, 107, 111, 135],
+        "FI": [2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 24],
+        "CA": [18, 21, 23, 26, 29, 31, 34, 37, 40, 43, 45, 48, 52, 55, 61, 65, 67, 69, 72],
+        # AÑADIDA tras verificación de rigor: en la primera pasada esta
+        # columna se transcribió con 20 valores (el tramo final se leyó
+        # partido en "32-33, 34, 35-36" en vez de fusionado en un único
+        # PE19 "34-36"). Releída con cuidado: 19 valores, PE19 = 34-36.
+        "CO": [2, 5, 9, 12, 14, 17, 19, 20, 21, 22, 23, 24, 26, 27, 29, 30, 31, 33, 36],
+        "B": [0, 2, 3, 5, 7, 10, 12, 13, 14, 15, 17, 19, 20, 22, 23, 24, 25, 26, 27],
+        "LN": [11, 13, 14, 15, 16, 17, 18, 19, 20, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30],
     },
     "45:0-54:11": {
         # CORREGIDA: el tramo final (PE16-19) estaba desplazado.
@@ -138,7 +192,14 @@ BAREMOS_ESPANA = {
         "BS": [4, 8, 10, 14, 17, 19, 21, 24, 27, 30, 32, 36, 38, 42, 44, 48, 52, 56, 60],
         "PV": [2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 16, 17, 19, 20, 22, 23, 25, 26],
         "I":  [3, 4, 5, 6, 6, 7, 8, 11, 13, 15, 18, 19, 20, 21, 23, 24, 25, 26, 26],
-        "CN": [16, 27, 29, 32, 34, 41, 46, 52, 58, 65, 70, 76, 80, 84, 88, 94, 102, 104, 135]
+        "CN": [16, 27, 29, 32, 34, 41, 46, 52, 58, 65, 70, 76, 80, 84, 88, 94, 102, 104, 135],
+        "FI": [2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 24],
+        "CA": [15, 17, 20, 24, 27, 29, 32, 35, 38, 41, 43, 46, 50, 53, 59, 63, 66, 68, 72],
+        # AÑADIDA tras verificación de rigor (mismo motivo que en 35:0-44:11:
+        # la primera pasada dio 20 valores por un tramo final mal partido).
+        "CO": [2, 4, 8, 11, 12, 15, 17, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 31, 36],
+        "B": [0, 1, 3, 4, 6, 9, 10, 11, 12, 14, 15, 17, 18, 20, 21, 22, 24, 25, 27],
+        "LN": [10, 11, 12, 13, 14, 15, 16, 17, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 30],
     },
     "55:0-69:11": {
         "C":  [5, 8, 10, 13, 17, 21, 25, 28, 32, 36, 40, 43, 47, 50, 53, 56, 59, 61, 66],
@@ -150,7 +211,14 @@ BAREMOS_ESPANA = {
         "BS": [1, 4, 6, 10, 12, 14, 16, 19, 21, 23, 26, 29, 32, 35, 38, 42, 48, 55, 60],
         "PV": [3, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 13, 14, 15, 18, 20, 22, 24, 26],
         "I":  [2, 3, 3, 4, 5, 6, 7, 8, 10, 13, 15, 17, 19, 21, 22, 23, 24, 25, 26],
-        "CN": [9, 18, 19, 22, 25, 30, 35, 41, 47, 53, 58, 65, 70, 75, 78, 84, 93, 95, 135]
+        "CN": [9, 18, 19, 22, 25, 30, 35, 41, 47, 53, 58, 65, 70, 75, 78, 84, 93, 95, 135],
+        "FI": [1, 2, 3, 4, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 24],
+        "CA": [10, 12, 14, 19, 22, 24, 26, 28, 31, 34, 37, 41, 43, 48, 50, 56, 64, 67, 72],
+        # AÑADIDA tras verificación de rigor (mismo motivo que en 35:0-44:11:
+        # la primera pasada dio 20 valores por un tramo final mal partido).
+        "CO": [2, 4, 6, 8, 9, 12, 15, 16, 19, 21, 22, 24, 25, 26, 27, 28, 30, 31, 36],
+        "B": [0, 1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 14, 15, 16, 17, 19, 22, 24, 27],
+        "LN": [4, 5, 6, 10, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 23, 25, 30],
     },
     "70:0-79:11": {
         "C":  [2, 3, 4, 7, 11, 14, 18, 20, 23, 27, 31, 34, 38, 43, 47, 50, 54, 57, 66],
@@ -162,7 +230,9 @@ BAREMOS_ESPANA = {
         "BS": [0, 1, 2, 4, 6, 7, 9, 11, 14, 15, 18, 20, 23, 26, 29, 33, 40, 49, 60],
         "PV": [1, 2, 3, 4, 5, 5, 6, 6, 7, 7, 8, 10, 11, 12, 14, 16, 19, 21, 26],
         "I":  [0, 1, 1, 2, 3, 3, 4, 5, 6, 7, 9, 11, 14, 16, 17, 19, 20, 21, 26],
-        "CN": [2, 4, 6, 8, 10, 12, 16, 20, 25, 31, 35, 42, 48, 53, 58, 64, 73, 75, 135]
+        "CN": [2, 4, 6, 8, 10, 12, 16, 20, 25, 31, 35, 42, 48, 53, 58, 64, 73, 75, 135],
+        "FI": [-1, -1, 0, 0, 1, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 24],
+        "CO": [2, 3, 4, 5, 6, 7, 9, 11, 14, 17, 18, 20, 22, 23, 25, 27, 28, 30, 36],
     },
     "80:0-84:11": {
         # CORREGIDA: PE2 es PD=1, no PD=0.
@@ -188,7 +258,9 @@ BAREMOS_ESPANA = {
         # desplazaba en -1 todo el resto de la columna. Verificado contra
         # foto (pág. 200).
         "I":  [-1, 0, 1, 2, 2, 3, 3, 4, 5, 6, 7, 9, 12, 14, 16, 19, 20, 21, 26],
-        "CN": [0, 1, 3, 5, 6, 7, 10, 13, 17, 22, 25, 32, 37, 43, 49, 55, 63, 65, 135]
+        "CN": [0, 1, 3, 5, 6, 7, 10, 13, 17, 22, 25, 32, 37, 43, 49, 55, 63, 65, 135],
+        "FI": [-1, -1, 0, 0, 1, 1, 2, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 24],
+        "CO": [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 16, 18, 19, 21, 23, 24, 26, 36],
     },
     "85:0-89:11": {
         # CORREGIDA: PE2 es PD=1, no PD=0 (la lista original repetía el 0 de
@@ -228,7 +300,9 @@ BAREMOS_ESPANA = {
         # CORREGIDA: PE2 es PD=1, no PD=0 (la lista original repetía el 0 de
         # PE1 en PE2, desplazando en -1 todo el resto de la columna y
         # perdiendo el valor PE18=58, que colapsaba con PE19=135).
-        "CN": [0, 1, 2, 3, 4, 5, 7, 9, 13, 16, 19, 26, 30, 35, 42, 48, 56, 58, 135]
+        "CN": [0, 1, 2, 3, 4, 5, 7, 9, 13, 16, 19, 26, 30, 35, 42, 48, 56, 58, 135],
+        "FI": [-1, -1, -1, -1, 0, 0, 1, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 24],
+        "CO": [0, 1, 2, 3, 4, 5, 7, 9, 11, 15, 17, 18, 20, 21, 23, 24, 25, 26, 36],
     }
 }
 # --- TABLAS COMPUESTAS (ESPAÑA EXACTAS - Páginas 203-208) ---
@@ -280,7 +354,16 @@ COMP_MAP = {
 # --- MOTOR LÓGICO ---
 def get_pe(sub, pd_score, edad):
     if edad not in BAREMOS_ESPANA: return 10
-    limites = BAREMOS_ESPANA[edad][sub]
+    # AMPLIADO: algunas pruebas opcionales (Cancelación, Balanzas, Letras y
+    # números) no están baremadas en el manual para las franjas de edad más
+    # altas (70:0-79:11 en adelante), y Comprensión no está aún verificada
+    # en tres franjas intermedias (ver PRUEBAS_OPCIONALES_PENDIENTES). En
+    # esos casos no hay "limites" para ese subtest en esa franja: se
+    # devuelve None en vez de fallar, para que la interfaz pueda mostrar
+    # "no disponible" en lugar de romperse o inventar un PE.
+    limites = BAREMOS_ESPANA[edad].get(sub)
+    if limites is None:
+        return None
     for i, limite in enumerate(limites):
         if pd_score <= limite:
             return i + 1
@@ -318,6 +401,28 @@ ORDEN_SUBTESTS = [
     ("I",  "Información",        "ICV", 26),
     ("CN", "Claves",              "IVP", 135),
 ]
+
+# AMPLIADO: pruebas opcionales/suplementarias del WAIS-IV. Se muestran de
+# forma informativa (PD -> PE) pero, a diferencia de las 10 pruebas
+# principales, NO entran en el cálculo de ICV/IRP/IMT/IVP/CIT — la
+# sustitución formal de una prueba principal por una opcional (con
+# prorrateo según las Tablas A.8/A.9 del manual) es una decisión clínica
+# que de momento no está automatizada en la app.
+ORDEN_OPCIONALES = [
+    ("FI", "Figuras incompletas",  "IRP", 24),
+    ("CO", "Comprensión",          "ICV", 36),
+    ("B",  "Balanzas",             "IRP", 27),
+    ("LN", "Letras y números",     "IMT", 30),
+    ("CA", "Cancelación",          "IVP", 72),
+]
+# Verificadas con una segunda pasada de auditoría (2026-08-15): las 10
+# franjas se releyeron columna por columna comparando contra la primera
+# transcripción, con verificación estructural (19 valores, monotonía) tras
+# cada corrección. El único hueco real que queda:
+#   - Cancelación (CA), Balanzas (B) y Letras y números (LN) no están
+#     baremadas en el manual a partir de 70:0-79:11 (no aparecen en la
+#     Tabla A.1 de esas franjas; confirmado en dos lecturas independientes).
+#     La app muestra "N/D" para esos casos en vez de un PE inventado.
 NOMBRE_INDICE = {
     "ICV": "Índice de Comprensión Verbal",
     "IRP": "Índice de Razonamiento Perceptivo",
@@ -376,35 +481,59 @@ if check_password():
         sexo = st.radio("Sexo", ["Varón", "Mujer"], horizontal=True)
 
         st.subheader("Cálculo de edad cronológica")
-        fecha_nacimiento = st.date_input(
-            "Fecha de nacimiento", value=date(1990, 1, 1),
-            min_value=date(1900, 1, 1), max_value=date.today(), format="DD/MM/YYYY",
+        # AMPLIADO: antes solo se podía indicar la fecha de nacimiento y la
+        # app calculaba la edad. Ahora se puede elegir entre ese modo o
+        # introducir directamente la edad en años y meses (por ejemplo,
+        # cuando la fecha de nacimiento exacta no está disponible).
+        modo_edad = st.radio(
+            "¿Cómo quieres indicar la edad?",
+            ["Fecha de nacimiento", "Edad directa (años y meses)"],
+            horizontal=True,
         )
+
         fecha_aplicacion = st.date_input(
             "Fecha de aplicación", value=date.today(),
             min_value=date(1900, 1, 1), max_value=date.today(), format="DD/MM/YYYY",
         )
 
+        fecha_nacimiento = None
+        edad_calculada = None
+        años_c = meses_c = dias_c = None
+
+        if modo_edad == "Fecha de nacimiento":
+            fecha_nacimiento = st.date_input(
+                "Fecha de nacimiento", value=date(1990, 1, 1),
+                min_value=date(1900, 1, 1), max_value=date.today(), format="DD/MM/YYYY",
+            )
+            edad_calculada = calcular_edad(fecha_nacimiento, fecha_aplicacion)
+            if edad_calculada:
+                años_c, meses_c, dias_c = edad_calculada
+                st.metric("Edad cronológica", f"{años_c} a  {meses_c} m  {dias_c} d")
+            else:
+                st.error("La fecha de aplicación es anterior a la de nacimiento.")
+        else:
+            col_años, col_meses = st.columns(2)
+            años_c = col_años.number_input("Años", min_value=16, max_value=89, value=30, step=1)
+            meses_c = col_meses.number_input("Meses", min_value=0, max_value=11, value=0, step=1)
+            dias_c = 0
+            edad_calculada = (años_c, meses_c, dias_c)
+            st.metric("Edad cronológica", f"{años_c} a  {meses_c} m")
+
         lista_edades = list(BAREMOS_ESPANA.keys())
-        edad_calculada = calcular_edad(fecha_nacimiento, fecha_aplicacion)
         franja_sugerida = None
         if edad_calculada:
-            años_c, meses_c, dias_c = edad_calculada
-            st.metric("Edad cronológica", f"{años_c} a  {meses_c} m  {dias_c} d")
             franja_sugerida = franja_para_edad(años_c, meses_c, lista_edades)
             if franja_sugerida:
                 st.success(f"Franja normativa sugerida: {franja_sugerida}")
             else:
                 st.warning("La edad calculada queda fuera de las franjas normativas disponibles (16-89 años). Selecciona la franja manualmente.")
-        else:
-            st.error("La fecha de aplicación es anterior a la de nacimiento.")
 
         indice_por_defecto = lista_edades.index(franja_sugerida) if franja_sugerida in lista_edades else 0
         edad_sel = st.selectbox(
             "Franja etaria normativa (puedes forzarla si lo necesitas)",
             lista_edades, index=indice_por_defecto,
         )
-        st.success("Baremos por edad auditados contra la Tabla A.1 del manual (9/9 franjas revisadas).")
+        st.success("Baremos por edad auditados contra la Tabla A.1 del manual (10/10 franjas revisadas).")
 
     # --- 1. PUNTUACIONES DIRECTAS (PD) ---
     # Tabla única y en el mismo orden que el protocolo en papel (antes
@@ -430,6 +559,48 @@ if check_password():
         pe_scores[codigo] = get_pe(codigo, pd_scores[codigo], edad_sel)
         fila[2].markdown(f"**{pe_scores[codigo]}**")
         fila[3].caption(indice)
+
+    # AMPLIADO: pruebas opcionales/suplementarias, en una tabla aparte para
+    # no mezclarlas con las 10 principales. Se muestran a título informativo
+    # (no se suman a ningún índice compuesto).
+    with st.expander("Pruebas opcionales (suplementarias)"):
+        st.caption(
+            "Estas puntuaciones se muestran solo a título informativo: no se "
+            "suman a ICV/IRP/IMT/IVP/CIT. La sustitución formal de una "
+            "prueba principal por una opcional (con el prorrateo del "
+            "manual) queda a criterio clínico."
+        )
+        encabezado_op = st.columns([3, 1.2, 1, 2])
+        encabezado_op[0].markdown("**Subtest**")
+        encabezado_op[1].markdown("**PD**")
+        encabezado_op[2].markdown("**PE**")
+        encabezado_op[3].markdown("**Índice**")
+
+        pd_opcionales = {}
+        pe_opcionales = {}
+        for codigo, nombre_subtest, indice, pd_max in ORDEN_OPCIONALES:
+            fila_op = st.columns([3, 1.2, 1, 2])
+            fila_op[0].write(nombre_subtest)
+            disponible = BAREMOS_ESPANA.get(edad_sel, {}).get(codigo) is not None
+            if disponible:
+                pd_opcionales[codigo] = fila_op[1].number_input(
+                    f"PD {nombre_subtest}", 0, pd_max, key=f"pd_op_{codigo}", label_visibility="collapsed",
+                )
+                pe_opcionales[codigo] = get_pe(codigo, pd_opcionales[codigo], edad_sel)
+                fila_op[2].markdown(f"**{pe_opcionales[codigo]}**")
+            else:
+                fila_op[1].caption("—")
+                fila_op[2].caption("N/D")
+            fila_op[3].caption(indice)
+        if any(
+            BAREMOS_ESPANA.get(edad_sel, {}).get(c) is None
+            for c, *_ in ORDEN_OPCIONALES
+        ):
+            st.caption(
+                "⚠️ Cancelación, Balanzas y Letras y números no están "
+                "baremadas en el manual a partir de 70:0-79:11, por eso "
+                "aparecen como \"N/D\" en esta franja."
+            )
 
     e_s, e_v, e_i = pe_scores["S"], pe_scores["V"], pe_scores["I"]
     e_c, e_m, e_pv = pe_scores["C"], pe_scores["M"], pe_scores["PV"]
@@ -497,6 +668,39 @@ if check_password():
 
     if st.button("📄 GENERAR INFORME"):
 
+        # AMPLIADO: redacción más clínica y cercana, evitando un tono seco o
+        # de "veredicto". Cada índice se presenta explicando primero qué mide
+        # (en lenguaje llano) antes de dar la puntuación, y la clasificación
+        # psicométrica oficial (desc_clinico) se mantiene entre paréntesis
+        # para conservar el rigor clínico, pero no encabeza la frase.
+        DESCRIPCION_INDICE = {
+            "ICV": "la capacidad para formar conceptos verbales, razonar utilizando el lenguaje "
+                   "y aplicar los conocimientos adquiridos a través de la experiencia y la "
+                   "escolarización",
+            "IRP": "el razonamiento no verbal, la organización visoespacial y la capacidad de "
+                   "integrar la información visual con una respuesta motora precisa",
+            "IMT": "la capacidad de mantener información en la mente durante unos instantes, "
+                   "manipularla mentalmente y utilizarla para completar una tarea; está muy "
+                   "ligada a la atención y a la concentración",
+            "IVP": "la rapidez y la precisión con las que se procesa información visual sencilla "
+                   "y rutinaria, así como la coordinación entre lo que se ve y la respuesta motora",
+        }
+
+        def frase_rendimiento(val):
+            """Traduce la categoría psicométrica en una frase más cercana,
+            sin perder la categoría oficial (que se añade entre paréntesis
+            donde se usa esta función)."""
+            mapa = {
+                "Muy Superior": "un rendimiento muy superior al esperado para su grupo de edad",
+                "Superior": "un rendimiento superior al esperado para su grupo de edad",
+                "Sobre el Promedio": "un rendimiento algo por encima de lo esperado para su grupo de edad",
+                "Promedio": "un rendimiento dentro de lo esperado para su grupo de edad",
+                "Bajo el Promedio": "un rendimiento algo por debajo de lo esperado para su grupo de edad",
+                "Limítrofe": "un rendimiento notablemente por debajo de lo esperado para su grupo de edad",
+                "Extremadamente Bajo": "un rendimiento muy por debajo de lo esperado para su grupo de edad",
+            }
+            return mapa.get(desc_clinico(val), desc_clinico(val).lower())
+
         def clasif_frase(val):
             return desc_clinico(val).lower()
 
@@ -516,33 +720,40 @@ if check_password():
         )
 
         parrafo_indices = (
-            f"En el {NOMBRE_INDICE['ICV']} (ICV) obtiene {icv} puntos, un rendimiento "
-            f"{clasif_frase(icv)}; en el {NOMBRE_INDICE['IRP']} (IRP), {irp} puntos, "
-            f"{clasif_frase(irp)}; en el {NOMBRE_INDICE['IMT']} (IMT), {imt} puntos, "
-            f"{clasif_frase(imt)}; y en el {NOMBRE_INDICE['IVP']} (IVP), {ivp} puntos, "
-            f"{clasif_frase(ivp)}."
+            f"En el {NOMBRE_INDICE['ICV']} (ICV) -que recoge {DESCRIPCION_INDICE['ICV']}- "
+            f"obtiene una puntuación de {icv}, mostrando {frase_rendimiento(icv)} "
+            f"(categoría: {desc_clinico(icv)}).\n\n"
+            f"En el {NOMBRE_INDICE['IRP']} (IRP) -que valora {DESCRIPCION_INDICE['IRP']}- "
+            f"alcanza {irp} puntos, con {frase_rendimiento(irp)} (categoría: {desc_clinico(irp)}).\n\n"
+            f"En cuanto al {NOMBRE_INDICE['IMT']} (IMT) -es decir, {DESCRIPCION_INDICE['IMT']}- "
+            f"se sitúa en {imt} puntos, {frase_rendimiento(imt)} (categoría: {desc_clinico(imt)}).\n\n"
+            f"Por último, en el {NOMBRE_INDICE['IVP']} (IVP) -que mide {DESCRIPCION_INDICE['IVP']}- "
+            f"obtiene {ivp} puntos, {frase_rendimiento(ivp)} (categoría: {desc_clinico(ivp)})."
         )
 
         if dis >= 23:
             parrafo_discrepancia = (
-                f"Se observa una discrepancia de {dis} puntos entre el índice más alto y el más "
-                f"bajo, un valor clínicamente significativo que aconseja no interpretar el CIT "
-                f"como una medida única del funcionamiento intelectual, prestando mayor atención "
-                f"al perfil diferencial entre índices. En estos casos puede resultar más "
+                f"Entre el índice más alto y el más bajo se observa una diferencia de {dis} "
+                f"puntos, un valor considerado clínicamente significativo. Esto sugiere que el "
+                f"perfil cognitivo no es homogéneo, por lo que resulta más informativo describir "
+                f"el rendimiento índice por índice que resumirlo en una única cifra global; el CIT "
+                f"debe interpretarse con esa cautela. En estos casos puede resultar más "
                 f"representativo el {NOMBRE_INDICE['ICG']} (ICG), que se sitúa en {icg} puntos "
-                f"({clasif_frase(icg)}), calculado únicamente a partir de los subtests verbales y "
-                f"perceptivos."
+                f"({clasif_frase(icg)}) y se calcula únicamente a partir de los subtests verbales "
+                f"y perceptivos, dejando fuera la memoria de trabajo y la velocidad de "
+                f"procesamiento."
             )
         else:
             parrafo_discrepancia = (
                 f"La diferencia entre el índice más alto y el más bajo es de {dis} puntos, dentro "
-                f"de límites no significativos, por lo que el perfil puede considerarse "
-                f"razonablemente homogéneo."
+                f"de límites no significativos, lo que indica un perfil cognitivo razonablemente "
+                f"homogéneo entre las distintas áreas evaluadas."
             )
 
         parrafo_cit = (
-            f"El Cociente Intelectual Total (CIT) resultante es de {cit} puntos, lo que sitúa el "
-            f"funcionamiento cognitivo global {del_al} en un rango {clasif_frase(cit)}."
+            f"El Cociente Intelectual Total (CIT), que resume de forma global el conjunto de los "
+            f"índices anteriores, es de {cit} puntos, lo que sitúa el funcionamiento cognitivo "
+            f"general {del_al} en {frase_rendimiento(cit)} (categoría: {desc_clinico(cit)})."
         )
 
         informe_final = (
@@ -552,7 +763,7 @@ if check_password():
             f"Franja normativa: {edad_sel}\n"
             f"Fecha de aplicación: {fecha_aplicacion.strftime('%d/%m/%Y')}\n\n"
             f"{intro}\n\n"
-            f"RESULTADOS\n{parrafo_indices} {parrafo_cit}\n\n"
+            f"RESULTADOS\n{parrafo_indices}\n\n{parrafo_cit}\n\n"
             f"INTERPRETACIÓN DEL PERFIL\n{parrafo_discrepancia}"
         )
 
@@ -564,13 +775,17 @@ if check_password():
 
         doc.add_heading("Datos de identificación", level=1)
         tabla_id = doc.add_table(rows=0, cols=2)
-        for etiqueta, valor in [
+        datos_identificacion = [
             ("Paciente", nombre),
             ("Edad cronológica", edad_txt),
             ("Franja normativa", edad_sel),
             ("Fecha de aplicación", fecha_aplicacion.strftime("%d/%m/%Y")),
-            ("Fecha de nacimiento", fecha_nacimiento.strftime("%d/%m/%Y")),
-        ]:
+        ]
+        # La fecha de nacimiento solo existe si se ha usado ese modo para
+        # calcular la edad; en modo "Edad directa" no se pide y se omite.
+        if fecha_nacimiento:
+            datos_identificacion.append(("Fecha de nacimiento", fecha_nacimiento.strftime("%d/%m/%Y")))
+        for etiqueta, valor in datos_identificacion:
             fila = tabla_id.add_row().cells
             fila[0].text = etiqueta
             fila[1].text = str(valor)
