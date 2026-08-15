@@ -1,4 +1,3 @@
-python
 import streamlit as st
 import pandas as pd
 # --- CONFIGURACIÓN Y SEGURIDAD ---
@@ -405,7 +404,7 @@ if check_password():
             "Franja etaria normativa (puedes forzarla si lo necesitas)",
             lista_edades, index=indice_por_defecto,
         )
-        st.success("Baremos por edad auditados contra la Tabla A.1 del manual (10/10 franjas revisadas).")
+        st.success("Baremos por edad auditados contra la Tabla A.1 del manual (9/9 franjas revisadas).")
 
     # --- 1. PUNTUACIONES DIRECTAS (PD) ---
     # Tabla única y en el mismo orden que el protocolo en papel (antes
@@ -612,4 +611,3 @@ if check_password():
             f"Informe_WAIS-IV_{nombre.replace(' ', '_')}.docx",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
-```
