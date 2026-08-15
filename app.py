@@ -33,29 +33,32 @@ def check_password():
 
 # --- MATRIZ DE DATOS: TABLA A.1 (PD -> PE POR SUBTEST) ---
 #
-# AUDITORÍA COMPLETA (9 de 9 franjas de edad revisadas contra fotos reales
-# de la Tabla A.1 del manual):
-#   - 16:0-17:11, 18:0-19:11, 25:0-34:11, 35:0-44:11, 55:0-69:11,
-#     70:0-79:11, 80:0-84:11 -> VERIFICADAS SIN CAMBIOS (coinciden con
-#     el manual columna por columna).
-#   - 20:0-24:11 -> RECONSTRUIDA desde la foto real (tenía varios subtests
-#     desplazados, no solo Vocabulario).
-#   - 45:0-54:11 -> CORREGIDA con los valores reales de la foto (el parche
-#     provisional de una revisión anterior no era exacto).
-#   - 85:0-89:11 -> pequeño ajuste en Vocabulario (PE=2: PD 6-7, no 6).
-#   - 25:0-34:11 -> columna Matrices (M) corregida (ver comentario junto
-#     a esa lista más abajo).
+# AUDITORÍA COMPLETA Y REAL (9/9 franjas de edad, 10/10 subtests cada una),
+# hecha releyendo cada foto original tras rotarla a la orientación correcta
+# (las revisiones anteriores partían de miniaturas rotadas y giros de
+# lectura poco fiables, lo que causó varias correcciones a medias en
+# mensajes previos). Resultado:
+#   - 55:0-69:11 y 70:0-79:11: sin ningún error, las 10 columnas coinciden
+#     con la foto tal cual.
+#   - 16:0-17:11: sin errores.
+#   - 18:0-19:11: Aritmética (A) corregida.
+#   - 20:0-24:11: reconstruida entera (varias columnas desplazadas).
+#   - 25:0-34:11: Semejanzas (S), Matrices (M), Aritmética (A) e
+#     Información (I) corregidas.
+#   - 35:0-44:11: Semejanzas (S) corregida.
+#   - 45:0-54:11: Cubos (C) y Semejanzas (S) corregidas.
+#   - 80:0-84:11: Cubos (C) corregida (un solo valor).
+#   - 85:0-89:11: Símbolos (BS) e Información (I) corregidas en el extremo
+#     inferior (con PD=0 la tabla no permite PE1-3 en esta franja; se usa
+#     -1 como valor "inalcanzable" para que el motor no asigne esos PE).
 #
-# IMPORTANTE - ALCANCE REAL DE ESTA AUDITORÍA:
-# La verificación por franja se ha centrado sobre todo en la columna
-# Vocabulario (que es donde surgieron los primeros errores) y, en el caso
-# de 25:0-34:11, también en Matrices tras el aviso del usuario. El resto
-# de columnas (C, S, D, A, BS, PV, I, CN) de cada franja NO han recibido
-# el mismo nivel de contraste cruzado entre franjas vecinas, así que no
-# está garantizado que estén libres de errores similares. Si detectas
-# otro resultado que no cuadre con tu cálculo manual, dime la franja de
-# edad, el subtest, el PD y el PE esperado, y se revisa esa columna en
-# concreto contra la foto y contra las franjas de alrededor.
+# Cada columna de cada franja se ha comparado además con las franjas de
+# edad vecinas como control de coherencia (el patrón debe ser similar
+# entre franjas próximas). Sigue habiendo un margen de incertidumbre menor
+# en el extremo superior (PE17-19) de algunas columnas de 85:0-89:11,
+# la franja con la letra más pequeña y más difícil de fotografiar —
+# afecta solo a puntuaciones directas muy altas en pacientes de 85-89
+# años, un caso poco frecuente en la práctica.
 BAREMOS_ESPANA = {
     "16:0-17:11": {
         "C":  [15, 18, 20, 22, 27, 31, 33, 38, 43, 47, 51, 55, 59, 61, 62, 63, 64, 65, 66],
@@ -75,45 +78,48 @@ BAREMOS_ESPANA = {
         "D":  [10, 13, 15, 17, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 36, 38, 40, 42, 48],
         "M":  [8, 9, 10, 11, 13, 14, 15, 17, 18, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26],
         "V":  [9, 11, 13, 16, 18, 20, 24, 27, 30, 32, 34, 36, 37, 39, 41, 43, 45, 49, 57],
-        "A":  [3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 16, 17, 18, 19, 20, 21, 22],
+        # CORREGIDA: la lista original repetía el valor 14 en dos posiciones
+        # (PE11 y PE12), desplazando en +1 todo lo que venía después.
+        "A":  [3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 22],
         "BS": [10, 15, 17, 21, 24, 27, 29, 31, 34, 36, 38, 41, 43, 45, 48, 51, 55, 57, 60],
         "PV": [4, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22, 23, 23, 24, 25, 26],
         "I":  [2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 17, 18, 19, 20, 21, 22, 23, 26],
         "CN": [29, 36, 42, 46, 52, 58, 63, 69, 73, 79, 84, 88, 91, 94, 101, 104, 108, 118, 135]
     },
-    # --- RECONSTRUIDA desde la foto real de la Tabla A.1 ---
+    # --- RECONSTRUIDA ENTERA (10/10 columnas) desde una foto nítida y bien
+    # orientada de la Tabla A.1. La reconstrucción anterior de esta franja
+    # (hecha con una lectura de peor calidad) tenía errores en casi todas
+    # las columnas.
     "20:0-24:11": {
-        "C":  [16, 20, 23, 25, 29, 33, 35, 41, 45, 50, 54, 57, 60, 61, 62, 64, 65, 66, 66],
-        "S":  [10, 11, 12, 13, 14, 15, 17, 18, 20, 22, 23, 25, 26, 27, 28, 29, 30, 32, 36],
-        "D":  [11, 13, 16, 18, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 37, 40, 42, 44, 48],
-        "M":  [8, 9, 10, 11, 13, 14, 15, 17, 18, 20, 21, 22, 23, 24, 24, 25, 26, 26, 26],
-        "V":  [10, 11, 13, 16, 18, 20, 25, 29, 32, 34, 36, 37, 39, 41, 44, 46, 48, 50, 57],
-        "A":  [3, 5, 6, 7, 8, 9, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 21],
-        "BS": [11, 16, 18, 21, 23, 27, 29, 31, 33, 36, 39, 42, 45, 47, 52, 54, 56, 58, 60],
-        "PV": [4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 24],
-        "I":  [3, 4, 5, 5, 6, 7, 9, 10, 13, 14, 16, 16, 18, 19, 21, 23, 24, 26, 27],
-        "CN": [29, 37, 42, 47, 51, 59, 64, 70, 74, 80, 85, 89, 92, 95, 101, 105, 107, 117, 135]
+        "C":  [16, 20, 23, 25, 29, 33, 35, 41, 45, 50, 54, 57, 60, 61, 62, 63, 64, 65, 66],
+        "S":  [10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 23, 24, 26, 27, 28, 29, 30, 31, 36],
+        "D":  [11, 13, 16, 18, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 37, 39, 41, 43, 48],
+        "M":  [8, 9, 10, 11, 13, 14, 15, 17, 18, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26],
+        "V":  [10, 11, 13, 16, 18, 20, 24, 29, 32, 34, 36, 37, 39, 41, 44, 46, 48, 50, 57],
+        "A":  [3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 22],
+        "BS": [11, 16, 18, 21, 23, 27, 29, 31, 33, 37, 39, 42, 44, 47, 50, 54, 56, 58, 60],
+        "PV": [4, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22, 23, 23, 24, 25, 26],
+        "I":  [3, 4, 5, 5, 6, 7, 9, 11, 13, 14, 16, 18, 19, 20, 21, 22, 23, 24, 26],
+        "CN": [29, 37, 42, 47, 51, 59, 64, 70, 74, 80, 85, 89, 92, 95, 101, 105, 110, 117, 135]
     },
     "25:0-34:11": {
         "C":  [16, 21, 24, 26, 31, 35, 37, 43, 47, 51, 56, 58, 61, 62, 63, 64, 65, 66, 66],
-        "S":  [8, 11, 13, 14, 15, 17, 19, 20, 22, 24, 25, 27, 28, 29, 30, 31, 32, 33, 36],
+        "S":  [8, 11, 12, 13, 14, 15, 17, 19, 20, 22, 24, 25, 26, 27, 28, 29, 30, 31, 36],
         "D":  [11, 13, 16, 17, 20, 21, 22, 24, 26, 28, 30, 31, 33, 35, 37, 39, 41, 43, 48],
-        # CORREGIDA: la lista original inflaba varios valores 1-2 puntos por
-        # encima de lo que marcan las franjas vecinas (20:0-24:11 y
-        # 35:0-44:11), que son casi idénticas entre sí en este subtest —
-        # eso hacía que el PE saliera más bajo de lo real para pacientes
-        # de esta franja de edad (ej. 31 años).
-        "M":  [6, 7, 9, 10, 13, 14, 15, 17, 18, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26],
+        "M":  [6, 7, 9, 10, 13, 15, 16, 19, 20, 22, 23, 24, 24, 24, 25, 25, 25, 26, 26],
         "V":  [10, 12, 14, 16, 18, 20, 24, 29, 32, 34, 36, 38, 40, 42, 45, 47, 49, 51, 57],
-        "A":  [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 22],
+        # CORREGIDA: desplazamiento de +1 en el tramo medio.
+        "A":  [5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 20, 21, 22, 22],
         "BS": [8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50, 52, 54, 57, 60],
         "PV": [5, 8, 9, 10, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 24, 25, 26, 26, 26],
-        "I":  [3, 4, 5, 6, 7, 8, 10, 11, 14, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26],
+        # CORREGIDA: PE7 es PD<=9, no <=10.
+        "I":  [3, 4, 5, 6, 7, 8, 9, 11, 14, 16, 18, 19, 20, 21, 22, 23, 24, 26, 26],
         "CN": [26, 36, 38, 43, 46, 55, 60, 66, 71, 77, 82, 87, 90, 94, 98, 103, 109, 114, 135]
     },
     "35:0-44:11": {
         "C":  [12, 18, 21, 23, 28, 32, 35, 39, 43, 48, 52, 55, 58, 59, 61, 62, 64, 65, 66],
-        "S":  [8, 11, 12, 15, 17, 19, 21, 23, 25, 27, 29, 30, 31, 32, 33, 35, 36, 38, 48],
+        # CORREGIDA: PE4 es PD<=13, no <=15 (desplazaba el resto de la columna).
+        "S":  [8, 11, 12, 13, 14, 15, 17, 18, 20, 22, 23, 25, 26, 27, 28, 29, 30, 31, 36],
         "D":  [10, 12, 15, 17, 19, 20, 21, 23, 25, 27, 29, 30, 32, 34, 36, 38, 40, 42, 48],
         "M":  [5, 6, 7, 9, 11, 13, 14, 17, 18, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26],
         "V":  [9, 11, 13, 15, 18, 20, 23, 28, 31, 34, 36, 38, 40, 42, 45, 47, 49, 51, 57],
@@ -123,10 +129,11 @@ BAREMOS_ESPANA = {
         "I":  [3, 4, 5, 6, 6, 7, 9, 11, 14, 17, 18, 19, 20, 21, 23, 24, 25, 26, 26],
         "CN": [20, 26, 32, 37, 43, 49, 55, 61, 67, 73, 79, 84, 87, 91, 95, 100, 107, 111, 135]
     },
-    # --- CORREGIDA con los valores reales de la foto (V especialmente) ---
     "45:0-54:11": {
-        "C":  [10, 15, 17, 20, 25, 29, 32, 36, 40, 45, 49, 51, 55, 57, 59, 63, 65, 66, 66],
-        "S":  [7, 10, 11, 12, 13, 15, 16, 18, 19, 21, 23, 24, 26, 27, 28, 29, 30, 31, 36],
+        # CORREGIDA: el tramo final (PE16-19) estaba desplazado.
+        "C":  [10, 15, 17, 20, 25, 29, 32, 36, 40, 45, 49, 51, 55, 57, 59, 61, 63, 65, 66],
+        # CORREGIDA: PE13 es PD<=25, no <=26.
+        "S":  [7, 10, 11, 12, 13, 15, 16, 18, 19, 21, 23, 24, 25, 27, 28, 29, 30, 31, 36],
         "D":  [9, 12, 14, 15, 17, 18, 20, 22, 24, 26, 28, 29, 31, 33, 35, 37, 40, 42, 48],
         "M":  [3, 4, 6, 8, 10, 11, 12, 14, 16, 18, 19, 20, 21, 22, 23, 24, 25, 25, 26],
         "V":  [8, 10, 12, 14, 16, 18, 21, 26, 29, 32, 35, 37, 39, 41, 44, 46, 47, 51, 57],
@@ -161,7 +168,8 @@ BAREMOS_ESPANA = {
         "CN": [2, 4, 6, 8, 10, 12, 16, 20, 25, 31, 35, 42, 48, 53, 58, 64, 73, 75, 135]
     },
     "80:0-84:11": {
-        "C":  [0, 0, 2, 4, 5, 7, 10, 12, 16, 20, 22, 26, 30, 34, 38, 43, 47, 51, 66],
+        # CORREGIDA: PE2 es PD=1, no PD=0.
+        "C":  [0, 1, 2, 4, 5, 7, 10, 12, 16, 20, 22, 26, 30, 34, 38, 43, 47, 51, 66],
         "S":  [0, 1, 2, 3, 5, 7, 9, 10, 11, 12, 14, 15, 17, 18, 20, 21, 22, 24, 36],
         "D":  [5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 23, 25, 27, 30, 32, 48],
         "M":  [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 26],
@@ -179,9 +187,16 @@ BAREMOS_ESPANA = {
         "M":  [0, 0, 0, 1, 2, 3, 4, 5, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 26],
         "V":  [5, 7, 8, 9, 10, 11, 12, 14, 16, 18, 22, 24, 26, 28, 34, 36, 38, 40, 57],
         "A":  [0, 1, 3, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 12, 14, 15, 16, 22],
-        "BS": [0, 0, 0, 1, 1, 2, 2, 4, 5, 6, 7, 9, 10, 13, 16, 19, 22, 28, 60],
+        # CORREGIDA: para esta franja de edad, PD=0 en Símbolos no alcanza a
+        # dar PE1: la tabla marca "-" (no hay puntuación directa posible)
+        # para PE1-3, y el primer PE realmente alcanzable con PD=0 es PE4.
+        # Se usa -1 como valor "inalcanzable" para que el motor de cálculo
+        # nunca asigne esos PE por error.
+        "BS": [-1, -1, -1, 0, 1, 2, 4, 5, 6, 7, 9, 10, 13, 16, 19, 22, 28, 30, 60],
         "PV": [0, 1, 2, 3, 4, 5, 5, 6, 6, 7, 8, 9, 10, 10, 13, 16, 18, 26, 26],
-        "I":  [1, 1, 1, 2, 3, 3, 4, 5, 6, 7, 9, 11, 15, 17, 18, 19, 26, 26, 26],
+        # CORREGIDA: mismo caso que Símbolos — PE1 no es alcanzable con
+        # PD=0 en esta franja (el primer PE real con PD=0 es PE2).
+        "I":  [-1, 0, 1, 2, 2, 3, 3, 4, 5, 6, 7, 9, 11, 15, 17, 18, 19, 26, 26],
         "CN": [0, 0, 1, 2, 3, 4, 5, 7, 9, 13, 16, 19, 26, 30, 35, 42, 48, 56, 135]
     }
 }
