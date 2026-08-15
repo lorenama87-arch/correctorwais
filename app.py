@@ -177,7 +177,12 @@ BAREMOS_ESPANA = {
     },
     "85:0-89:11": {
         "C":  [0, 0, 2, 3, 4, 6, 9, 11, 14, 18, 21, 25, 28, 32, 37, 41, 46, 50, 66],
-        "S":  [0, 0, 1, 2, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 18, 19, 20, 21, 36],
+        # CORREGIDA: la lista original tenía un "0" duplicado en PE1-PE2
+        # (debía ser PD<=0 -> PE1, PD<=1 -> PE2), lo que desplazaba en -1
+        # todo el resto de la columna y hacía desaparecer el valor PE18=24
+        # (saltaba directamente de PE17=21 a PE19=36). Verificado contra
+        # foto nítida de la Tabla A.1 (pág. 201): PE2=1, ..., PE18=24.
+        "S":  [0, 1, 2, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 18, 19, 20, 21, 24, 36],
         "D":  [4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 21, 23, 25, 29, 31, 48],
         "M":  [0, 0, 0, 1, 2, 3, 4, 5, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 26],
         "V":  [5, 7, 8, 9, 10, 11, 12, 14, 16, 18, 22, 24, 26, 28, 34, 36, 38, 40, 57],
